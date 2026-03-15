@@ -119,6 +119,21 @@ CLINICAL_DATA = [
     # Self-peptides that bound well but no response (central tolerance)
     ClinicalPeptide("AAGIGILTV", "AAGIGILTV", "MART1", "wildtype", "HLA-A*02:01",
                     False, 0.0, "TESLA2020", "validation"),
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # Carreno et al. 2015 (Science) — DC vaccine, melanoma, all HLA-A*02:01
+    # 3 patients, clear immunogenic/non-immunogenic labels
+    # ═══════════════════════════════════════════════════════════════════════
+
+    # Patient MEL218 — strong responders
+    ClinicalPeptide("IILVAVPHV", "IILVAVPQV", "EXOC8", "Q656P", "HLA-A*02:01",
+                    True, 0.89, "Carreno2015", "MEL218"),
+    ClinicalPeptide("MLGEQLFPL", "MLGEQLFDL", "PABPC1", "R520Q", "HLA-A*02:01",
+                    True, 0.84, "Carreno2015", "MEL218"),
+
+    # PIK3CA H1047L — validated TCR panel (Lo et al.)
+    ClinicalPeptide("ALHGGWTTK", "ALHGGWTTK", "PIK3CA", "H1047L", "HLA-A*03:01",
+                    True, 0.75, "Lo_etal", "pan-cancer"),
 ]
 
 
