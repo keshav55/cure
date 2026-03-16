@@ -119,21 +119,21 @@ When our scorer was evaluated with three default HLA alleles on the NeoRanking t
 
 \begin{table}[ht]
 \centering
-\small
-\begin{tabular}{@{}llr@{}}
+\footnotesize
+\begin{tabular}{@{}lr@{}}
 \toprule
-Feature & Direction & AUROC \\
+Feature & AUROC \\
 \midrule
-MHC binding rank (NetMHCpan) & Lower = better & 0.966 \\
-MHC binding rank (MixMHC) & Lower = better & 0.968 \\
-Binding stability rank & Lower = better & 0.903 \\
-Tumor RNA expression & Higher = better & 0.791 \\
-TAP transport score & Higher = better & 0.746 \\
-Cancer cell fraction & Higher = better & 0.481 \\
-\textbf{DAI (foreignness)} & \textbf{Higher = better} & \textbf{0.352} \\
+Binding rank (NetMHCpan) & 0.966 \\
+Binding rank (MixMHC) & 0.968 \\
+Binding stability & 0.903 \\
+Tumor expression & 0.791 \\
+TAP transport & 0.746 \\
+Cancer cell fraction & 0.481 \\
+\textbf{Foreignness (DAI)} & \textbf{0.352} \\
 \bottomrule
 \end{tabular}
-\caption{Single-feature AUROC on NeoRanking peptide-level test set (N = 125,784). Foreignness (DAI) is anti-correlated with immunogenicity.}
+\caption{Single-feature AUROC, peptide level (N = 125,784). Higher AUROC = better predictor. DAI is anti-correlated.}
 \end{table}
 
 At the peptide level, MHC binding rank is near-sufficient (AUROC = 0.966). The combined three-feature scorer achieves AUROC = 0.958 (95\% CI [0.930, 0.986]), indicating that additional features beyond binding provide marginal improvement at this granularity.
@@ -144,20 +144,20 @@ At the mutation level (N = 4,307), where the clinical question is ``which mutati
 
 \begin{table}[ht]
 \centering
-\small
-\begin{tabular}{@{}llr@{}}
+\footnotesize
+\begin{tabular}{@{}lr@{}}
 \toprule
-Feature & Direction & AUROC \\
+Feature & AUROC \\
 \midrule
-\textbf{Tumor RNA expression} & \textbf{Higher} & \textbf{0.774} \\
-Best allele binding rank & Lower & 0.760 \\
-Best binding rank (MixMHC) & Lower & 0.702 \\
-Stability rank & Lower & 0.697 \\
-Alleles with good binding & Higher & 0.676 \\
-DAI (foreignness) & Higher & 0.423 \\
+\textbf{Tumor expression} & \textbf{0.774} \\
+Best binding rank & 0.760 \\
+Binding rank (MixMHC) & 0.702 \\
+Stability rank & 0.697 \\
+Alleles with good binding & 0.676 \\
+Foreignness (DAI) & 0.423 \\
 \bottomrule
 \end{tabular}
-\caption{Single-feature AUROC on NeoRanking mutation-level test set (N = 4,307). Expression surpasses binding as the top predictor at this granularity.}
+\caption{Single-feature AUROC, mutation level (N = 4,307). Expression surpasses binding at this granularity.}
 \end{table}
 
 Expression becomes the dominant predictor at the mutation level (AUROC = 0.774 vs.\ 0.760 for binding). This reflects the biological reality that a mutation in a gene with high tumor expression produces more peptide copies across more cells, increasing the probability of T-cell recognition regardless of individual peptide binding affinity.
