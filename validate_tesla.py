@@ -66,6 +66,15 @@ def make_synthetic_wildtype(peptide: str, mut_pos: int) -> str:
     return peptide[:idx] + wt_aa + peptide[idx + 1:]
 
 
+def _safe_float(val):
+    if val is None or val == 'NA' or val == '':
+        return None
+    try:
+        return float(val)
+    except (ValueError, TypeError):
+        return None
+
+
 def run():
     data_file = Path(__file__).parent / "data" / "tesla_mmc4.xlsx"
     if not data_file.exists():
@@ -73,6 +82,7 @@ def run():
         sys.exit(1)
 
     from scorer import score_peptide
+    from scorer_tesla import score_with_features
 
     wb = openpyxl.load_workbook(str(data_file), read_only=True)
     ws = wb['master-bindings-selected']
@@ -80,16 +90,15 @@ def run():
 
     print(f"═══ TESLA VALIDATION — {len(rows)} peptides ═══\n")
 
-    tp = fp = tn = fn = 0
-    scores_pos = []
-    scores_neg = []
+    # Run BOTH scorers: sequence-only and feature-based
+    results_seq = {"tp": 0, "fp": 0, "tn": 0, "fn": 0, "pos": [], "neg": []}
+    results_feat = {"tp": 0, "fp": 0, "tn": 0, "fn": 0, "pos": [], "neg": []}
     threshold = 0.5
 
     for row in rows:
         peptide = str(row[4]).strip()
         hla_raw = str(row[3]).strip()
         hla = f"HLA-{hla_raw}" if not hla_raw.startswith("HLA-") else hla_raw
-        # Normalize: A*0201 → A*02:01
         if "*" in hla and ":" not in hla:
             parts = hla.split("*")
             allele = parts[1]
@@ -102,58 +111,75 @@ def run():
         except (ValueError, TypeError):
             mut_pos = 0
 
-        # Create synthetic wildtype from mutation position
+        # ── Scorer 1: Sequence-only (synthetic wildtype) ──
         if mut_pos > 0:
             wildtype = make_synthetic_wildtype(peptide, mut_pos)
         else:
             wildtype = peptide
 
         alleles = [hla]
-        # Add common alleles for coverage
         for a in ["HLA-A*02:01", "HLA-A*03:01", "HLA-A*11:01"]:
             if a not in alleles:
                 alleles.append(a)
 
-        our_score = score_peptide(peptide, wildtype, alleles=alleles)
-        predicted = 1 if our_score >= threshold else 0
+        seq_score = score_peptide(peptide, wildtype, alleles=alleles)
+        predicted_seq = 1 if seq_score >= threshold else 0
 
-        if predicted == 1 and actual == 1:
-            tp += 1
-        elif predicted == 1 and actual == 0:
-            fp += 1
-        elif predicted == 0 and actual == 1:
-            fn += 1
+        # ── Scorer 2: Feature-based (uses TESLA measured data) ──
+        binding = _safe_float(row[6])
+        stability = _safe_float(row[9])
+        abundance = _safe_float(row[8])
+
+        if binding is not None and stability is not None:
+            feat_score = score_with_features(binding, stability, abundance)
         else:
-            tn += 1
+            feat_score = seq_score  # fall back to sequence-only
+        predicted_feat = 1 if feat_score >= threshold else 0
 
-        if actual == 1:
-            scores_pos.append(our_score)
-        else:
-            scores_neg.append(our_score)
+        # Record results for both
+        for results, predicted, score in [
+            (results_seq, predicted_seq, seq_score),
+            (results_feat, predicted_feat, feat_score),
+        ]:
+            if predicted == 1 and actual == 1: results["tp"] += 1
+            elif predicted == 1 and actual == 0: results["fp"] += 1
+            elif predicted == 0 and actual == 1: results["fn"] += 1
+            else: results["tn"] += 1
+            (results["pos"] if actual == 1 else results["neg"]).append(score)
 
-    precision = tp / (tp + fp) if (tp + fp) > 0 else 0
-    recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
-    accuracy = (tp + tn) / len(rows)
+        our_score = seq_score  # for backward compat with rest of function
+        predicted = predicted_seq
 
-    # ROC-AUC
-    auc = 0.5
-    if scores_pos and scores_neg:
-        auc = sum(1 for p in scores_pos for n in scores_neg if p > n) / (len(scores_pos) * len(scores_neg))
+    # ── Report both scorers ──
+    def _report(name, r, n_total):
+        tp, fp, tn, fn = r["tp"], r["fp"], r["tn"], r["fn"]
+        prec = tp / (tp + fp) if (tp + fp) > 0 else 0
+        rec = tp / (tp + fn) if (tp + fn) > 0 else 0
+        f1 = 2 * prec * rec / (prec + rec) if (prec + rec) > 0 else 0
+        acc = (tp + tn) / n_total
+        auc = 0.5
+        if r["pos"] and r["neg"]:
+            auc = sum(1 for p in r["pos"] for n in r["neg"] if p > n) / (len(r["pos"]) * len(r["neg"]))
+        avg_p = sum(r["pos"]) / len(r["pos"]) if r["pos"] else 0
+        avg_n = sum(r["neg"]) / len(r["neg"]) if r["neg"] else 0
+        print(f"── {name} ──")
+        print(f"tp={tp} fp={fp} tn={tn} fn={fn}")
+        print(f"Precision: {prec:.4f}  Recall: {rec:.4f}  F1: {f1:.4f}")
+        print(f"Accuracy: {acc:.4f}")
+        print(f"ROC-AUC: {auc:.4f}")
+        print(f"Avg immunogenic: {avg_p:.4f}  Avg non-immunogenic: {avg_n:.4f}  Separation: {avg_p-avg_n:.4f}")
+        return auc
 
-    print(f"tp={tp} fp={fp} tn={tn} fn={fn}")
-    print(f"Precision: {precision:.4f}")
-    print(f"Recall: {recall:.4f}")
-    print(f"F1: {f1:.4f}")
-    print(f"Accuracy: {accuracy:.4f}")
-    print(f"ROC-AUC: {auc:.4f}")
     print()
+    auc_seq = _report("Sequence-only scorer (scorer.py)", results_seq, len(rows))
+    print()
+    auc_feat = _report("Feature-based scorer (binding + stability + expression)", results_feat, len(rows))
+    print()
+    print(f"Improvement: {auc_seq:.3f} → {auc_feat:.3f} (Δ = {auc_feat-auc_seq:+.3f})")
 
-    avg_pos = sum(scores_pos) / len(scores_pos) if scores_pos else 0
-    avg_neg = sum(scores_neg) / len(scores_neg) if scores_neg else 0
-    print(f"Avg score (immunogenic): {avg_pos:.4f} (n={len(scores_pos)})")
-    print(f"Avg score (non-immunogenic): {avg_neg:.4f} (n={len(scores_neg)})")
-    print(f"Separation: {avg_pos - avg_neg:.4f}")
+    scores_pos = results_seq["pos"]
+    scores_neg = results_seq["neg"]
+    auc = auc_seq
 
     if auc > 0.7:
         print(f"\n✓ SIGNAL DETECTED on {len(rows)} TESLA peptides")
