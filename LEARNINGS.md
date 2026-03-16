@@ -96,3 +96,28 @@ At 82% recall we catch most immunogenic peptides but half our predictions
 are false positives. For vaccine design this is acceptable — you can
 synthesize 20 candidates and expect ~10 to work. For drug development
 this ratio would be too expensive. Context matters.
+
+## Experiment: Foreignness Paradox Deep Dive (2026-03-16)
+
+### Result
+Three tests on the anti-correlation:
+
+1. DAI correlates with WORSE binding (r=0.113). Foreign mutations
+   slightly disrupt MHC binding. Partial confound confirmed.
+
+2. Among good binders only (rank < 0.5), DAI is STILL anti-correlated
+   (AUC=0.432). Controlling for binding doesn't fix it.
+   **Central tolerance hypothesis holds.**
+
+3. Cross-group mutations (the most "foreign") have the strongest
+   anti-correlation (AUC=0.228). Same-group also anti-correlated (0.312).
+
+### Learning
+**The foreignness anti-correlation is NOT just a binding confound.**
+Even among peptides that bind well, foreign mutations are less immunogenic.
+This supports central tolerance: T-cells reactive to highly foreign
+peptides are deleted during thymic selection.
+
+Implication: DO NOT use foreignness as a positive feature in the scorer.
+Either remove it entirely or use it as a NEGATIVE signal (penalty for
+high foreignness). This is counterintuitive but data-driven.
