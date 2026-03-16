@@ -156,3 +156,30 @@ multi-signal combiner.
 The paper's thesis is STRENGTHENED: data quality (right alleles) >
 algorithmic complexity (more features). Our own scorer proves it —
 adding features to binding makes it worse, not better.
+
+## Experiment: Minimal Scorer (MHCflurry Only) (2026-03-16)
+
+### Result
+MHCflurry presentation_score with patient allele only:
+  AUROC = 0.967, 95% CI [0.941, 0.993]
+  Matches NeoRanking binding rank (0.968)
+  Beats our full scorer (0.909) by 0.058
+
+### Learning
+**The optimal scorer is MHCflurry presentation_score. Period.**
+300 lines of BLOSUM80, dissimilarity, TCR analysis = noise.
+The scorer should be 5 lines:
+  1. Get patient HLA alleles
+  2. Call MHCflurry.predict(peptide, allele)
+  3. Return presentation_score
+  4. Rank by score
+  5. Done
+
+### Implication
+The daemon's 1,048 experiments optimized features that don't help.
+But the daemon DID discover this fact (through the validation loop).
+The value was in the PROCESS of systematic investigation, not in
+the features it produced.
+
+Kalanick was right: fewest rules while staying out of chaos.
+The fewest rules here is one feature: does it bind?
