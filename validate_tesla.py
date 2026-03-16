@@ -14,10 +14,7 @@ from pathlib import Path
 
 import openpyxl
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent / "atrisos-backend"
-sys.path.insert(0, str(PROJECT_ROOT))
-sys.path.insert(0, str(PROJECT_ROOT / "backend"))
-sys.path.insert(0, str(PROJECT_ROOT / "experiments" / "neoantigen-scorer"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -75,7 +72,7 @@ def run():
         print("ERROR: tesla_mmc4.xlsx not found.")
         sys.exit(1)
 
-    from target import score_peptide
+    from scorer import score_peptide
 
     wb = openpyxl.load_workbook(str(data_file), read_only=True)
     ws = wb['master-bindings-selected']

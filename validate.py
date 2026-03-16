@@ -23,11 +23,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-# Add paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent / "atrisos-backend"
-sys.path.insert(0, str(PROJECT_ROOT))
-sys.path.insert(0, str(PROJECT_ROOT / "backend"))
-sys.path.insert(0, str(PROJECT_ROOT / "experiments" / "neoantigen-scorer"))
+# Add cure/ directory to path for local imports
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 
 @dataclass
@@ -142,7 +139,7 @@ def validate():
     import warnings
     warnings.filterwarnings("ignore")
 
-    from target import score_peptide
+    from scorer import score_peptide
 
     print("═══ CLINICAL VALIDATION ═══")
     print(f"Testing {len(CLINICAL_DATA)} peptides from published trials\n")

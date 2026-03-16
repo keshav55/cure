@@ -164,12 +164,8 @@ def predict_mhc_binding(candidates: list[PeptideCandidate], allele: str = "HLA-A
 
 
 def score_immunogenicity(candidates: list[PeptideCandidate]) -> list[PeptideCandidate]:
-    """Score immunogenicity using the neoantigen scorer (daemon-optimized)."""
-    # Import the scorer that the daemon is optimizing
-    scorer_path = Path(__file__).parent.parent / "experiments" / "neoantigen-scorer"
-    if str(scorer_path) not in sys.path:
-        sys.path.insert(0, str(scorer_path))
-    from target import score_peptide
+    """Score immunogenicity using the neoantigen scorer."""
+    from scorer import score_peptide
 
     for c in candidates:
         c.immunogenicity_score = score_peptide(c.peptide, c.wildtype)
