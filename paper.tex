@@ -40,25 +40,25 @@ This case illustrates that computational barriers to personalized cancer vaccine
 
 \section{Related Work}
 
-\begin{table}[h]
+\begin{table*}[t]
 \centering
 \small
 \begin{tabular}{lllr}
 \toprule
 Tool & Year & Method & AUROC \\
 \midrule
-NetMHCpan 4.1 & 2020 & NN & $\sim$0.65 \\
-pTuneos & 2020 & RF & 0.72 \\
+NetMHCpan 4.1 & 2020 & Neural network & $\sim$0.65 \\
+pTuneos & 2020 & Random forest & 0.72 \\
 DeepImmuno & 2021 & CNN & 0.74 \\
-PRIME & 2023 & GB & 0.76 \\
-NeoRanking & 2023 & GB & 0.78 \\
+PRIME & 2023 & Gradient boosting & 0.76 \\
+NeoRanking & 2023 & Gradient boosting & 0.78 \\
 BigMHC$^*$ & 2023 & Transformer & 0.59 \\
-\textbf{cure (ours)} & \textbf{2026} & \textbf{Rules + MHCflurry} & \textbf{0.61} \\
+\textbf{cure (ours)} & \textbf{2026} & \textbf{Rule-based + MHCflurry} & \textbf{0.61} \\
 \bottomrule
 \end{tabular}
-\caption{Neoantigen immunogenicity prediction tools. AUROC values are dataset-dependent with no universally best predictor. $^*$BigMHC reports neoepitope AUROC 0.585 emphasizing precision/AUPRC.}
+\caption{Neoantigen immunogenicity prediction tools. AUROC values are dataset-dependent with no universally best predictor. $^*$BigMHC reports neoepitope AUROC 0.585, emphasizing precision and AUPRC over AUROC.}
 \label{tab:related}
-\end{table}
+\end{table*}
 
 Performance comparisons across tools are complicated by differences in datasets, evaluation protocols, and feature availability. The values in Table~\ref{tab:related} are directional, not directly comparable.
 
@@ -76,11 +76,7 @@ The scorer combines six signals:
 
 \textbf{Signal 2: Mutation Dissimilarity.} Cross-group amino acid changes at TCR-contact (central) positions score highest (+0.35). Same-group changes at central positions are penalized ($-$0.05), reflecting near-invisibility to the T-cell receptor.
 
-\textbf{Signal 3: BLOSUM80 Foreignness.} For each mutated position $i$:
-\begin{equation}
-f_i = (B_{diag}(wt_i) - B(wt_i, mut_i)) \cdot \frac{B_{diag}(wt_i)}{16} \cdot w_i
-\end{equation}
-where $B$ is the BLOSUM80 matrix, $B_{diag}$ is the diagonal (self-substitution) score, and $w_i = 1.5$ for central positions.
+\textbf{Signal 3: BLOSUM80 Foreignness.} For each mutated position $i$, we compute $f_i = (B_{diag}(wt_i) - B(wt_i, mut_i)) \cdot B_{diag}(wt_i)/16 \cdot w_i$, where $B$ is the BLOSUM80 matrix, $B_{diag}$ is the diagonal (self-substitution) score, and $w_i = 1.5$ for central positions. This weights mutations of conserved residues (high $B_{diag}$, e.g.\ W=16) to dissimilar amino acids as maximally foreign.
 
 \textbf{Signal 4: Binding Stability.} MHCflurry's processing score (antigen presentation probability), scaled by 0.10.
 
@@ -115,10 +111,10 @@ Key techniques: multi-armed bandit strategy selection, RAPO diff-snippet retriev
 
 \subsection{Sequence-Only Results}
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \small
-\begin{tabular}{lrrr}
+\begin{tabular}{@{}lrrr@{}}
 \toprule
 Dataset & N & AUROC & 95\% CI \\
 \midrule
@@ -126,17 +122,17 @@ TESLA & 608 & 0.609 & [0.50, 0.71] \\
 Clinical & 20 & 0.596 & [0.34, 0.85] \\
 \bottomrule
 \end{tabular}
-\caption{Sequence-only scorer performance. Clinical set CI includes 0.50 (not significant at $\alpha$=0.05). TESLA CI excludes 0.50.}
+\caption{Sequence-only scorer. Clinical CI includes 0.50 (not significant). TESLA CI excludes 0.50.}
 \end{table}
 
 \subsection{Feature Analysis}
 
 Using pre-computed TESLA features:
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \small
-\begin{tabular}{lr}
+\begin{tabular}{@{}lr@{}}
 \toprule
 Feature(s) & AUROC \\
 \midrule
@@ -148,7 +144,7 @@ All three combined & 0.804 \\
 Foreignness only & 0.315 \\
 \bottomrule
 \end{tabular}
-\caption{Single and combined feature AUROC on TESLA (N=319 with all features). Foreignness is anti-correlated.}
+\caption{Feature AUROC on TESLA (N=319 with all features available). Foreignness is anti-correlated.}
 \end{table}
 
 The anti-correlation of foreignness (AUROC = 0.315) likely reflects central tolerance: highly foreign peptides may have been eliminated from the T-cell repertoire during thymic selection, consistent with prior observations that foreignness is a weak predictor \cite{wells2020tesla}.
