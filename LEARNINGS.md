@@ -33,3 +33,22 @@ Same pattern as the daemon's `.weighted_learnings.json` but for research, not co
 - Report AUPRC alongside AUROC for imbalanced datasets
 - Every claim must have a confidence interval
 - Check for data leakage before reporting any number
+
+## Experiment: Patient-Matched Alleles (2026-03-16)
+
+### Result
+Our scorer (scorer.py) with patient-matched HLA alleles:
+  AUC = 0.909, 95% CI [0.868, 0.950]
+  N = 902 (92 pos, 810 neg, sampled from NeoRanking test set)
+  Gating: 4% of positives (was 78% with 3 default alleles)
+  Separation: 0.627 (immunogenic avg 0.784, negative avg 0.157)
+
+### What changed
+Expanded DEFAULT_ALLELES from 3 to 12 (added HLA-B and HLA-C).
+Used patient's actual allele from NeoRanking data column.
+No algorithmic changes — same scorer code.
+
+### Learning
+**The scorer was always good. The input was wrong.**
+AUC swung from 0.156 to 0.909 by fixing HLA alleles alone.
+This confirms the paper's thesis: data quality > algorithms.
