@@ -186,6 +186,7 @@ def score_peptide(peptide: str, wildtype: str, alleles: list = None) -> float:
     # ── Gate 1: MHC binding — test all alleles, take best ──
     best_presentation = 0.0
     best_affinity = 50000.0
+    best_processing = 0.0  # stability proxy
 
     try:
         pred = _get_predictor()
@@ -194,9 +195,11 @@ def score_peptide(peptide: str, wildtype: str, alleles: list = None) -> float:
                 df = pred.predict(peptides=[peptide], alleles=[allele], verbose=0)
                 pres = float(df["presentation_score"].values[0])
                 aff = float(df["affinity"].values[0])
+                proc = float(df["processing_score"].values[0])
                 if aff < best_affinity:
                     best_affinity = aff
                     best_presentation = pres
+                    best_processing = proc
             except Exception:
                 continue
     except Exception:
@@ -213,6 +216,10 @@ def score_peptide(peptide: str, wildtype: str, alleles: list = None) -> float:
         binding_boost = 0.12 * length_factor
     else:
         binding_boost = (0.20 + best_presentation * 0.15) * length_factor
+
+    # Binding stability bonus (processing_score = antigen processing probability)
+    # TESLA showed stability is the #3 predictor (AUC=0.685 alone)
+    stability_boost = best_processing * 0.10  # scale to 0-0.10 range
 
     # ── Signal 2: Mutation dissimilarity ──
     dissimilarity = 0.0
@@ -307,8 +314,8 @@ def score_peptide(peptide: str, wildtype: str, alleles: list = None) -> float:
         length_mismatch_penalty = 0.20
 
     # ── Combine ──
-    score = (0.28 + binding_boost + dissimilarity + blosum_foreignness
-             + aromatic_bonus + tcr_coverage_bonus
+    score = (0.28 + binding_boost + stability_boost + dissimilarity
+             + blosum_foreignness + aromatic_bonus + tcr_coverage_bonus
              - anchor_penalty - gp_penalty - length_mismatch_penalty)
 
     return min(1.0, max(0.0, score))
