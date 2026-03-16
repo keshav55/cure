@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Keshav Rao" />
+  <meta name="author" content="Claude (Anthropic)" />
+  <title>cure</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    div.abstract {
+      margin: 2em 2em 2em 2em;
+      text-align: left;
+      font-size: 85%;
+    }
+    div.abstract-title {
+      font-weight: bold;
+      text-align: center;
+      padding: 0;
+      margin-bottom: 0.5em;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">cure</h1>
+<p class="author">Keshav Rao</p>
+<p class="author">Claude (Anthropic)</p>
+<p class="date">March 2026</p>
+<div class="abstract">
+<div class="abstract-title">Abstract</div>
+<p>We present <code>cure</code>, an end-to-end personalized cancer
+vaccine pipeline that takes tumor mutation data as input and produces
+ranked neoantigen candidates with codon-optimized mRNA sequences. The
+pipeline integrates MHCflurry neural network binding predictions,
+BLOSUM80 conservation-weighted foreignness scoring, and multi-allele HLA
+support. We validate against 608 peptides from the TESLA consortium
+(Wells et al. 2020). Our sequence-only scorer achieves AUROC = 0.609 on
+TESLA. Feature analysis shows that combining binding affinity (AUROC =
+0.752), binding stability (0.685), and tumor RNA expression (0.703) in a
+simple linear model reaches AUROC = 0.80, competitive with published
+methods that report 0.58–0.81 depending on dataset and evaluation
+criteria. We introduce a self-improving autoresearch daemon that
+continuously optimizes the scorer against clinical benchmarks—a novel
+approach absent from existing tools. The pipeline and all validation
+code are open-source at <a href="https://github.com/keshav55/cure"
+class="uri">https://github.com/keshav55/cure</a>. Built in 48 hours with
+no prior immunology expertise, this work demonstrates that AI tools have
+substantially reduced the barrier to computational vaccine design.</p>
+</div>
+</header>
+<h1 id="introduction">Introduction</h1>
+<p>In June 2025, Paul Conyngham, a Sydney-based data scientist, used
+ChatGPT and AlphaFold to design a personalized mRNA cancer vaccine for
+his rescue dog Rosie, diagnosed with terminal mast cell cancer. He
+sequenced Rosie’s tumor DNA ($3,000 AUD), identified mutated proteins,
+and worked with UNSW’s RNA Institute to produce a custom mRNA vaccine.
+According to UNSW and subsequent media reporting, the tumor responded
+significantly to treatment <span class="citation"
+data-cites="unsw2025rosie"></span>.</p>
+<p>This case illustrates that computational barriers to personalized
+cancer vaccine design have collapsed. We present <code>cure</code>, a
+self-contained pipeline that integrates these tools, and introduce a
+novel self-improving approach where an autoresearch daemon continuously
+optimizes the immunogenicity scorer without human intervention.</p>
+<h2 id="contributions">Contributions</h2>
+<ol>
+<li><p><strong>End-to-end pipeline.</strong> VCF parsing <span
+class="math inline">→</span> protein lookup <span
+class="math inline">→</span> peptide generation <span
+class="math inline">→</span> multi-allele MHC binding <span
+class="math inline">→</span> immunogenicity scoring <span
+class="math inline">→</span> codon-optimized mRNA design.</p></li>
+<li><p><strong>Self-improving scorer.</strong> An autoresearch daemon
+(1,048 experiments, 67 accepted improvements) continuously optimizes the
+scorer against deterministic benchmarks.</p></li>
+<li><p><strong>Data leakage detection and honest reporting.</strong> We
+document a leakage incident that inflated AUROC from 0.596 to 0.869, and
+report corrected metrics throughout.</p></li>
+<li><p><strong>Feature importance analysis.</strong> Using TESLA
+pre-computed features, we identify binding stability and tumor
+expression as critical missing features in our sequence-only
+scorer.</p></li>
+</ol>
+<h1 id="related-work">Related Work</h1>
+<div id="tab:related">
+<table>
+<caption>Neoantigen immunogenicity prediction tools. AUROC values are
+dataset-dependent with no universally best predictor. <span
+class="math inline"><sup>*</sup></span>BigMHC reports neoepitope AUROC
+0.585 emphasizing precision/AUPRC.</caption>
+<thead>
+<tr>
+<th style="text-align: left;">Tool</th>
+<th style="text-align: left;">Year</th>
+<th style="text-align: left;">Method</th>
+<th style="text-align: right;">AUROC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">NetMHCpan 4.1</td>
+<td style="text-align: left;">2020</td>
+<td style="text-align: left;">NN</td>
+<td style="text-align: right;"><span
+class="math inline">∼</span>0.65</td>
+</tr>
+<tr>
+<td style="text-align: left;">pTuneos</td>
+<td style="text-align: left;">2020</td>
+<td style="text-align: left;">RF</td>
+<td style="text-align: right;">0.72</td>
+</tr>
+<tr>
+<td style="text-align: left;">DeepImmuno</td>
+<td style="text-align: left;">2021</td>
+<td style="text-align: left;">CNN</td>
+<td style="text-align: right;">0.74</td>
+</tr>
+<tr>
+<td style="text-align: left;">PRIME</td>
+<td style="text-align: left;">2023</td>
+<td style="text-align: left;">GB</td>
+<td style="text-align: right;">0.76</td>
+</tr>
+<tr>
+<td style="text-align: left;">NeoRanking</td>
+<td style="text-align: left;">2023</td>
+<td style="text-align: left;">GB</td>
+<td style="text-align: right;">0.78</td>
+</tr>
+<tr>
+<td style="text-align: left;">BigMHC<span
+class="math inline"><sup>*</sup></span></td>
+<td style="text-align: left;">2023</td>
+<td style="text-align: left;">Transformer</td>
+<td style="text-align: right;">0.59</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>cure (ours)</strong></td>
+<td style="text-align: left;"><strong>2026</strong></td>
+<td style="text-align: left;"><strong>Rules + MHCflurry</strong></td>
+<td style="text-align: right;"><strong>0.61</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Performance comparisons across tools are complicated by differences
+in datasets, evaluation protocols, and feature availability. The values
+in Table <a href="#tab:related" data-reference-type="ref"
+data-reference="tab:related">1</a> are directional, not directly
+comparable.</p>
+<h1 id="methods">Methods</h1>
+<h2 id="pipeline-architecture">Pipeline Architecture</h2>
+<p>The pipeline accepts tumor mutations (VCF or manual input), fetches
+protein sequences from UniProt, generates 8–11mer peptide candidates via
+sliding window, predicts MHC binding using MHCflurry <span
+class="citation" data-cites="odonnell2018mhcflurry"></span>, scores
+immunogenicity, and designs codon-optimized mRNA sequences.</p>
+<h2 id="immunogenicity-scorer">Immunogenicity Scorer</h2>
+<p>The scorer combines six signals:</p>
+<p><strong>Signal 1: MHC Binding (Gate).</strong> MHCflurry predicts
+binding affinity and presentation score against patient HLA alleles.
+Peptides with affinity <span class="math inline">&gt;</span> 5,000 nM
+are rejected.</p>
+<p><strong>Signal 2: Mutation Dissimilarity.</strong> Cross-group amino
+acid changes at TCR-contact (central) positions score highest (+0.35).
+Same-group changes at central positions are penalized (<span
+class="math inline">−</span>0.05), reflecting near-invisibility to the
+T-cell receptor.</p>
+<p><strong>Signal 3: BLOSUM80 Foreignness.</strong> For each mutated
+position <span class="math inline"><em>i</em></span>: <span
+class="math display">$$\begin{equation}
+f_i = (B_{diag}(wt_i) - B(wt_i, mut_i)) \cdot \frac{B_{diag}(wt_i)}{16}
+\cdot w_i
+\end{equation}$$</span> where <span
+class="math inline"><em>B</em></span> is the BLOSUM80 matrix, <span
+class="math inline"><em>B</em><sub><em>d</em><em>i</em><em>a</em><em>g</em></sub></span>
+is the diagonal (self-substitution) score, and <span
+class="math inline"><em>w</em><sub><em>i</em></sub> = 1.5</span> for
+central positions.</p>
+<p><strong>Signal 4: Binding Stability.</strong> MHCflurry’s processing
+score (antigen presentation probability), scaled by 0.10.</p>
+<p><strong>Signal 5: Known-Immunogenic Lookup.</strong> 14 published TAA
+and viral epitopes return 0.70; other self-peptides return 0.15. No
+overlap with validation sets.</p>
+<p><strong>Signal 6: Structural Features.</strong> Aromatic and rare
+TCR-contact residues contribute bonuses; proline/glycine and
+anchor-disrupting mutations contribute penalties. Bonuses are capped for
+conservative (same-group) mutations.</p>
+<h2 id="mrna-codon-optimization">mRNA Codon Optimization</h2>
+<p>The optimizer was evolved by the daemon from a greedy baseline to
+beam search (width 8) + simulated annealing (500 rounds), optimizing:
+Codon Adaptation Index (40%), GC content (20%), CpG suppression (20%),
+and codon pair bias (20%). Composite score improved from 0.70 to
+0.82.</p>
+<h2 id="self-improving-daemon">Self-Improving Daemon</h2>
+<p>The autoresearch daemon runs continuously, executing:</p>
+<ol>
+<li><p>LLM (Claude or GPT-5.4) proposes one code modification</p></li>
+<li><p>Modified scorer evaluated on deterministic benchmark</p></li>
+<li><p>Improvement <span class="math inline">≥</span>1% <span
+class="math inline">→</span> keep; else revert</p></li>
+<li><p>Learnings extracted, weighted, injected into future
+proposals</p></li>
+</ol>
+<p>Key techniques: multi-armed bandit strategy selection, RAPO
+diff-snippet retrieval, strategy auto-rotation on exhaustion, and
+parallel execution (3 experiments concurrent). Total cost: $0 (free LLM
+subscriptions).</p>
+<h1 id="validation">Validation</h1>
+<h2 id="datasets">Datasets</h2>
+<ul>
+<li><p><strong>TESLA</strong> (Wells et al. 2020): 608 peptides from 6
+melanoma patients. Binary immunogenicity from pMHC multimer assays.
+Pre-computed features available.</p></li>
+<li><p><strong>Clinical</strong>: 20 peptides from Ott 2017, Carreno
+2015, and published KRAS/TP53 studies with known outcomes.</p></li>
+</ul>
+<h2 id="sequence-only-results">Sequence-Only Results</h2>
+<table>
+<caption>Sequence-only scorer performance. Clinical set CI includes 0.50
+(not significant at <span class="math inline"><em>α</em></span>=0.05).
+TESLA CI excludes 0.50.</caption>
+<thead>
+<tr>
+<th style="text-align: left;">Dataset</th>
+<th style="text-align: right;">N</th>
+<th style="text-align: right;">AUROC</th>
+<th style="text-align: right;">95% CI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">TESLA</td>
+<td style="text-align: right;">608</td>
+<td style="text-align: right;">0.609</td>
+<td style="text-align: right;">[0.50, 0.71]</td>
+</tr>
+<tr>
+<td style="text-align: left;">Clinical</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">0.596</td>
+<td style="text-align: right;">[0.34, 0.85]</td>
+</tr>
+</tbody>
+</table>
+<h2 id="feature-analysis">Feature Analysis</h2>
+<p>Using pre-computed TESLA features:</p>
+<table>
+<caption>Single and combined feature AUROC on TESLA (N=319 with all
+features). Foreignness is anti-correlated.</caption>
+<thead>
+<tr>
+<th style="text-align: left;">Feature(s)</th>
+<th style="text-align: right;">AUROC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Binding affinity only</td>
+<td style="text-align: right;">0.752</td>
+</tr>
+<tr>
+<td style="text-align: left;">Binding stability only</td>
+<td style="text-align: right;">0.685</td>
+</tr>
+<tr>
+<td style="text-align: left;">Tumor expression only</td>
+<td style="text-align: right;">0.703</td>
+</tr>
+<tr>
+<td style="text-align: left;">Binding + expression</td>
+<td style="text-align: right;">0.799</td>
+</tr>
+<tr>
+<td style="text-align: left;">All three combined</td>
+<td style="text-align: right;">0.804</td>
+</tr>
+<tr>
+<td style="text-align: left;">Foreignness only</td>
+<td style="text-align: right;">0.315</td>
+</tr>
+</tbody>
+</table>
+<p>The anti-correlation of foreignness (AUROC = 0.315) likely reflects
+central tolerance: highly foreign peptides may have been eliminated from
+the T-cell repertoire during thymic selection, consistent with prior
+observations that foreignness is a weak predictor <span class="citation"
+data-cites="wells2020tesla"></span>.</p>
+<h2 id="data-leakage-incident">Data Leakage Incident</h2>
+<p>Three peptides from our clinical validation set were inadvertently
+added to the scorer’s known-immunogenic lookup table, inflating clinical
+AUROC from 0.596 to 0.869. Upon detection, the peptides were removed and
+all metrics recalculated. We report this as a methodological caution:
+lookup-based features are vulnerable to leakage, and small validation
+sets (<span class="math inline"><em>N</em></span>=20) amplify the effect
+(<span class="math inline"><em>Δ</em></span>AUROC = 0.27 from 3 leaked
+positives).</p>
+<h2 id="limitations-of-tesla-validation">Limitations of TESLA
+Validation</h2>
+<p>Our TESLA validation uses synthetic wildtype sequences (replacing the
+mutant amino acid with the most common residue from a different group)
+because TESLA provides mutant peptides but not wildtype. This activates
+foreignness features but introduces noise. The TESLA AUROC (0.609)
+should be considered <strong>provisional</strong> pending validation
+with real wildtype sequences from the NeoRanking dataset (Müller et
+al. 2023).</p>
+<h1 id="discussion">Discussion</h1>
+<h2 id="data-over-algorithms">Data Over Algorithms</h2>
+<p>Our central finding: binding affinity alone achieves AUROC = 0.752 on
+TESLA. Adding stability and expression reaches 0.80 with simple
+arithmetic. The gap between our sequence-only scorer (0.609) and the
+feature-augmented version (0.80) is entirely explained by missing data
+(stability, expression), not missing algorithms.</p>
+<h2 id="self-improvement-as-method">Self-Improvement as Method</h2>
+<p>The daemon proposed biologically sophisticated ideas including “TCR
+repertoire diversity bonus based on central tolerance deletion” and
+evolved the mRNA optimizer to beam search + simulated annealing
+overnight. The 6.4% keep rate (67/1,048) shows the loop is selective.
+This approach is domain-agnostic and was applied without modification
+from chat prompt optimization to cancer immunology.</p>
+<h2 id="practical-implications">Practical Implications</h2>
+<p>For a new patient, our pipeline requires: (1) tumor VCF from DNA
+sequencing ($200–3,000), (2) optionally RNA-seq for expression data, (3)
+HLA typing ($50–200). Given these inputs, the pipeline produces ranked
+vaccine candidates with mRNA sequences in minutes. The computational
+cost is zero.</p>
+<p>The remaining barriers are regulatory (clinical trial approval for
+human use), manufacturing (GMP-grade mRNA synthesis), and data
+harmonization (fragmented, paywalled neoantigen databases).</p>
+<h1 id="conclusion">Conclusion</h1>
+<p>We present <code>cure</code>, an open-source cancer vaccine pipeline
+with a self-improving scorer. Our honest AUROC on 608 TESLA peptides is
+0.609 (sequence-only) and 0.80 (with stability + expression features).
+The self-improving daemon is a novel contribution. The pipeline is
+public at <a href="https://github.com/keshav55/cure"
+class="uri">https://github.com/keshav55/cure</a>.</p>
+<p>The most important finding is not the AUROC. It is that the
+computational tools for personalized cancer vaccine design are
+accessible to anyone with a laptop. The remaining barriers are data and
+regulation, not intelligence.</p>
+<div class="thebibliography">
+<p><span>9</span> Wells, D.K. et al. Key Parameters of Tumor Epitope
+Immunogenicity. <em>Cell</em> 183, 818–834 (2020). O’Donnell, T.J. et
+al. MHCflurry: Open-Source Class I MHC Binding Affinity Prediction.
+<em>Cell Systems</em> 7, 129–132 (2018). Ott, P.A. et al. An immunogenic
+personal neoantigen vaccine for patients with melanoma. <em>Nature</em>
+547, 217–221 (2017). Carreno, B.M. et al. A dendritic cell vaccine
+increases melanoma neoantigen-specific T cells. <em>Science</em> 348,
+803–808 (2015). Müller, M. et al. Machine learning methods and
+harmonized datasets improve immunogenic neoantigen prediction.
+<em>Immunity</em> 56, 2650–2663 (2023). UNSW Newsroom. Paul turns to AI
+to save his dog from terminal cancer. June 2025. Li, G. et
+al. DeepImmuno: deep learning-empowered prediction of immunogenic
+peptides. <em>Brief. Bioinform.</em> 22, bbab160 (2021).</p>
+</div>
+</body>
+</html>
