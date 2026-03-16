@@ -129,9 +129,10 @@ def run():
         binding = _safe_float(row[6])
         stability = _safe_float(row[9])
         abundance = _safe_float(row[8])
+        num_pred = _safe_float(row[14])
 
         if binding is not None and stability is not None:
-            feat_score = score_with_features(binding, stability, abundance)
+            feat_score = score_with_features(binding, stability, abundance, num_pred)
         else:
             feat_score = seq_score  # fall back to sequence-only
         predicted_feat = 1 if feat_score >= threshold else 0
