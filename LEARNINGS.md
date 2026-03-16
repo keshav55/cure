@@ -121,3 +121,38 @@ peptides are deleted during thymic selection.
 Implication: DO NOT use foreignness as a positive feature in the scorer.
 Either remove it entirely or use it as a NEGATIVE signal (penalty for
 high foreignness). This is counterintuitive but data-driven.
+
+## Experiment: Does the Scorer Add Value Beyond Binding? (2026-03-16)
+
+### Result
+At the peptide level with patient-matched alleles:
+  Binding rank only (NeoRanking):  AUC = 0.968
+  Our scorer (MHCflurry + features): AUC = 0.909
+  3-feature combo (bind+stab+expr):  AUC = 0.967
+  + inverted foreignness:            AUC = 0.969
+
+### Learning
+**Our scorer's features HURT performance at the peptide level.**
+Binding rank alone (0.968) beats our full scorer (0.909) by 0.059.
+The daemon's BLOSUM80, dissimilarity, TCR coverage features add noise,
+not signal, when patient-matched binding predictions are available.
+
+This does NOT mean the daemon was useless:
+- The daemon found that foreignness is anti-correlated (insight)
+- The daemon improved the benchmark F1 from 0.77 to 0.84 (code quality)
+- The daemon's mRNA optimizer IS useful (0.70 → 0.82)
+
+But for immunogenicity PREDICTION specifically, binding rank is
+near-sufficient. The algorithmic features don't help. The value is
+in getting the right alleles and having good binding predictions.
+
+### Implication for the pipeline
+Simplify scorer.py: use MHCflurry binding prediction as the primary
+score. Remove or downweight BLOSUM80 and dissimilarity features.
+The scorer should be a thin wrapper around MHCflurry, not a
+multi-signal combiner.
+
+### Implication for the paper
+The paper's thesis is STRENGTHENED: data quality (right alleles) >
+algorithmic complexity (more features). Our own scorer proves it —
+adding features to binding makes it worse, not better.
