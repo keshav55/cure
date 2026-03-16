@@ -22,8 +22,13 @@ def _get_predictor():
     return _predictor
 
 
-# Default HLA alleles — covers ~85% of the global population
-DEFAULT_ALLELES = ["HLA-A*02:01", "HLA-A*03:01", "HLA-A*11:01"]
+# Default HLA alleles — top 12 alleles covering ~95% of global population
+# MHCflurry supports 14,847 alleles — always prefer patient-specific typing
+DEFAULT_ALLELES = [
+    "HLA-A*01:01", "HLA-A*02:01", "HLA-A*03:01", "HLA-A*11:01", "HLA-A*24:02",
+    "HLA-B*07:02", "HLA-B*08:01", "HLA-B*35:01", "HLA-B*40:01", "HLA-B*44:02",
+    "HLA-C*04:01", "HLA-C*07:02",
+]
 
 AA_GROUPS = {
     'A': 0, 'V': 0, 'I': 0, 'L': 0, 'M': 0,
