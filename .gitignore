@@ -3,3 +3,9 @@ __pycache__/
 *.pyc
 # Data files tracked individually (large binaries excluded)
 data/*.xlsx
+data/Neopep_data_org.txt
+data/Neopep_data_org.txt.zip
+data/Mutation_data_org.txt
+data/neoranking_mutations.zip
+data/neoranking_neopeptides.zip
+data/neoranking_neopeptides_raw.zip
