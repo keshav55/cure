@@ -72,3 +72,27 @@ patient-specific expression data by using public databases.
 
 This means the pipeline needs only: VCF + HLA typing ($250 total).
 No RNA-seq required.
+
+## Experiment: Precision-Recall Analysis (2026-03-16)
+
+### Result
+At the clinically useful operating point (82% recall):
+  Precision = 49% (half of predicted immunogenic peptides actually are)
+  Threshold = 0.59
+
+AUPRC = 0.691 (random baseline = 0.102, lift = 6.8x)
+
+Key operating points:
+  High precision (69%): recall = 44%, threshold = 0.9 (conservative)
+  Balanced (53%/70%): threshold = 0.7
+  High recall (91%): precision = 45%, threshold = 0.5
+
+### Learning
+**AUPRC = 0.691 is the honest metric for imbalanced data.**
+AUROC (0.909) looks great but is inflated by class imbalance (99.92% negative).
+AUPRC shows we're 6.8x better than random — meaningful but not dominant.
+
+At 82% recall we catch most immunogenic peptides but half our predictions
+are false positives. For vaccine design this is acceptable — you can
+synthesize 20 candidates and expect ~10 to work. For drug development
+this ratio would be too expensive. Context matters.
