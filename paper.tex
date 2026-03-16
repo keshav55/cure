@@ -206,13 +206,7 @@ While the daemon's impact on absolute AUROC was modest compared to data quality 
 
 \subsection{Limitations}
 
-\begin{enumerate}[leftmargin=*,topsep=0pt,itemsep=2pt]
-\item The feature-based AUROC (0.958) uses NeoRanking pre-computed features, not our scorer's predictions. Our sequence-only scorer achieves 0.609 (TESLA) and 0.156 (NeoRanking, default alleles).
-\item The peptide-level AUROC (0.958) is inflated by class imbalance (99.92\% negative). Precision-recall analysis would provide a more informative evaluation at this ratio.
-\item Grid-searched weights may overfit to the NeoRanking training set. Cross-validation or held-out weight tuning would strengthen the combined scorer.
-\item The pipeline has not been validated in a clinical setting. mRNA sequences have not been synthesized or tested.
-\item The foreignness anti-correlation may partly reflect confounding with binding: mutations that dramatically change physicochemical properties may also disrupt MHC binding, creating correlated negative signals.
-\end{enumerate}
+The feature-based AUROC (0.958) uses NeoRanking pre-computed features, not our scorer's predictions; our sequence-only scorer achieves 0.609 (TESLA) and 0.156 (NeoRanking with default alleles). The peptide-level AUROC is inflated by class imbalance (99.92\% negative); precision-recall analysis would be more informative. Grid-searched weights may overfit. The pipeline has not been validated clinically, and no mRNA sequences have been synthesized. The foreignness anti-correlation may partly reflect confounding with binding disruption.
 
 \section{Conclusion}
 

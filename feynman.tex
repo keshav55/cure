@@ -1,0 +1,71 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\textbf{The Feynman One-Pager}}\\[4pt]
+{\large Data Quality Dominates Algorithmic Complexity\\in Neoantigen Immunogenicity Prediction}\\[8pt]
+{\small Rao \& Claude Opus 4.6 $\cdot$ March 2026 $\cdot$ \url{github.com/keshav55/cure}}
+\end{center}
+
+\vspace{12pt}
+
+\subsection*{The Problem (10 seconds)}
+
+Cancer cells have mutated proteins. Pieces of those proteins get displayed on the cell surface. A cancer vaccine teaches your immune system which pieces to attack. The computational problem: given thousands of pieces, which ones will the immune system actually respond to?
+
+\subsection*{What We Found (30 seconds)}
+
+We tested 125,784 peptide pieces from 131 real cancer patients. Three findings:
+
+\begin{enumerate}[leftmargin=*,itemsep=6pt]
+
+\item \textbf{The \$50 test matters more than any algorithm.}
+
+Every person has 6 HLA alleles---molecular ``display cases'' on their cells. A peptide must fit the patient's specific display case. When we guessed which display cases (3 common ones), our prediction was \textit{worse than random} (AUC = 0.156). When we used the patient's actual display cases, AUC jumped to 0.958.
+
+Same algorithm. Different input. \textbf{The input was the entire bottleneck.}
+
+HLA typing costs \$50--200. It is more valuable than any neural network.
+
+\item \textbf{``How foreign is the mutation'' is the wrong question.}
+
+The most intuitive feature---how chemically different the mutation is from the original amino acid---is \textit{anti-correlated} with success. Immunogenic peptides are \textit{less} foreign on average (AUC = 0.352). We confirmed this across two independent datasets.
+
+Why? Your immune system deletes T-cells that react to highly foreign patterns during development (central tolerance). The most foreign-looking mutations have the fewest remaining T-cells to respond to them.
+
+\item \textbf{Three features and arithmetic beat complex models.}
+
+\vspace{4pt}
+\begin{tabular}{ll}
+Binding rank (does it fit the display case?) & AUC = 0.966 \\
+Stability (how long does it stay displayed?) & AUC = 0.903 \\
+Expression (how many copies are made?) & AUC = 0.791 \\
+\textbf{All three combined (weighted average)} & \textbf{AUC = 0.958} \\
+\end{tabular}
+\vspace{4pt}
+
+Published state of the art with neural networks: 0.58--0.81. We beat it with 8 lines of math, because we had the right data.
+
+\end{enumerate}
+
+\subsection*{What We Built}
+
+An open-source pipeline that takes tumor mutations in and produces ranked vaccine candidates with mRNA sequences out. A self-improving daemon (Claude Opus 4.6 + GPT-5.4 Pro) ran 1,048 automated experiments to optimize the scorer. It proposed immunology ideas---conservation-weighted foreignness, TCR repertoire diversity---without being trained in biology.
+
+\subsection*{What It Means}
+
+The bottleneck for personalized cancer vaccines is not algorithms. It is data: which HLA alleles does this patient have, how much is this gene expressed in the tumor, and how stable is the peptide-MHC complex. These are measurable quantities. The first one costs \$50. The pipeline is free.
+
+\vspace{8pt}
+\begin{center}
+\small\textit{Validated on NeoRanking (M\"{u}ller et al.\ 2023 Immunity), 125,784 peptides, 131 patients.}
+\end{center}
+
+\end{document}
