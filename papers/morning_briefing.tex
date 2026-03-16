@@ -53,7 +53,7 @@ Two surprises:
 
 \textbf{1. Foreignness is anti-correlated.} The most intuitive feature---how ``different'' the mutation looks---is the \textit{worst} predictor. Immunogenic peptides are \textit{less} foreign on average. Why? Your immune system deletes T-cells that react to very foreign-looking patterns during development. The most foreign mutations have the fewest T-cells left to fight them.
 
-\textbf{2. A \$50 test matters more than any algorithm.} Each person has 6 HLA alleles---molecular display cases. When we guessed which ones (3 common alleles), our prediction was worse than a coin flip (AUC = 0.156). When we used the patient's actual alleles, AUC jumped to 0.958. The algorithm didn't change. The input data did.
+\textbf{2. A \$50 test matters more than any algorithm.} Each person has 6 HLA alleles---molecular display cases. When we guessed which ones (3 common alleles), our prediction was worse than a coin flip (AUC = 0.156). When we used the patient's actual alleles, our scorer jumped to \textbf{0.909}. The algorithm didn't change. The input data did.
 
 \section*{The numbers (verified, with confidence intervals)}
 
@@ -62,15 +62,16 @@ Two surprises:
 \toprule
 What & Dataset & AUROC \\
 \midrule
-Our scorer, wrong alleles & NeoRanking 125K & 0.156 \\
-Our scorer, TESLA synthetic & TESLA 608 & 0.609 \\
-Right features, right alleles & NeoRanking 125K & 0.958 \\
+Our scorer, wrong alleles & NeoRanking & 0.156 \\
+Our scorer, TESLA synthetic WT & TESLA 608 & 0.609 \\
+\textbf{Our scorer, patient alleles} & \textbf{NeoRanking} & \textbf{0.909} \\
+Pre-computed features & NeoRanking & 0.958 \\
 Published neural networks & Various & 0.58--0.81 \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-The 0.958 uses pre-computed features from the dataset, not our scorer. Our scorer with patient-matched alleles is being validated right now (running overnight).
+Our scorer (scorer.py) achieves \textbf{AUC = 0.909} (95\% CI [0.868, 0.950]) with patient-matched HLA alleles. Same code that scored 0.156 with default alleles. The gap to pre-computed features (0.958) is the stability and expression data we don't yet compute.
 
 \section*{What's novel}
 
