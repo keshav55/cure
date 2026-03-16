@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <style>
+        body {
+            font-family: "Arial";
+        }
+    </style>
+    <script type="text/javascript">
+    window.awsWafCookieDomainList = ['figshare.com'];
+    window.gokuProps = {
+"key":"AQIDAHjcYu/GjX+QlghicBgQ/7bFaQZ+m5FKCMDnO+vTbNg96AEWEL2rLoegZM3wEyipXmFvAAAAfjB8BgkqhkiG9w0BBwagbzBtAgEAMGgGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMppi0/MHjXimA8lzEAgEQgDsTTy5EFlC2ubGrQJuRaGkK1D2CP44Xz1gO/sXiUhBncgJg0lGywOZp+oVr2XwMHNkq07U9OIdsVfxWjQ==",
+          "iv":"CgAFLB6xKgAAASpA",
+          "context":"FGGfQVrG/ciiZGgN7AR55PtD++/ChL0oRL99n0nc4dhYvSXIKo+R8i+q7pVlO1S6XuffO7VfUS2df8cPCjsRTrZ8Qrovjv0dr75Fsjjll8nJ6veF1qKlnOQ28VdP9g9ZzOexY7pEnJd4KwUWARbFzAwr1nv+9xw5H4dLzU6avH4Su2rGEV2zLIAb6svsg3govs5RTG/lnAi1m3bs07hWonBwErLj1PKrRc/igz+GMqOnScOd04XqTwWfm0dpgT1vGovvLMx38FNrmeHxKxp8Hgr80aiMoKI0KROODbUjjhWeEORQvgD6BhIpVJ2XawwmVakaaHtVBBMQAzPTAXSlbMMmr4DWo6hpZXWjIJXEkIBG74oQs/nFIMrVO0Ly"
+};
+    </script>
+    <script src="https://64b6c62dfbe5.5fbc94a4.eu-west-1.token.awswaf.com/64b6c62dfbe5/d5e199e0e037/e913bb7e8153/challenge.js"></script>
+</head>
+<body>
+    <div id="challenge-container"></div>
+    <script type="text/javascript">
+        AwsWafIntegration.saveReferrer();
+        AwsWafIntegration.checkForceRefresh().then((forceRefresh) => {
+            if (forceRefresh) {
+                AwsWafIntegration.forceRefreshToken().then(() => {
+                    window.location.reload(true);
+                });
+            } else {
+                AwsWafIntegration.getToken().then(() => {
+                    window.location.reload(true);
+                });
+            }
+        });
+    </script>
+    <noscript>
+        <h1>JavaScript is disabled</h1>
+        In order to continue, we need to verify that you're not a robot.
+        This requires JavaScript. Enable JavaScript and then reload the page.
+    </noscript>
+</body>
+</html>
