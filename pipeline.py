@@ -24,10 +24,8 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-# Add project paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-sys.path.insert(0, str(PROJECT_ROOT / "backend"))
+# cure/ is self-contained — no external path dependencies
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 
 @dataclass
@@ -163,12 +161,12 @@ def predict_mhc_binding(candidates: list[PeptideCandidate], allele: str = "HLA-A
     return candidates
 
 
-def score_immunogenicity(candidates: list[PeptideCandidate]) -> list[PeptideCandidate]:
-    """Score immunogenicity using the neoantigen scorer."""
+def score_immunogenicity(candidates: list[PeptideCandidate], alleles: list = None) -> list[PeptideCandidate]:
+    """Score immunogenicity using the neoantigen scorer with patient-matched alleles."""
     from scorer import score_peptide
 
     for c in candidates:
-        c.immunogenicity_score = score_peptide(c.peptide, c.wildtype)
+        c.immunogenicity_score = score_peptide(c.peptide, c.wildtype, alleles=alleles)
 
     return candidates
 
@@ -269,8 +267,11 @@ def run_pipeline(mutations: list[Mutation], allele: str = "HLA-A*02:01", top_n: 
     print(f"  Binders (affinity < 2000 nM): {len(binders)} / {len(all_candidates)}")
 
     # Step 3: Immunogenicity scoring
-    print("\nScoring immunogenicity...")
-    all_candidates = score_immunogenicity(all_candidates)
+    # Use patient-matched alleles for immunogenicity scoring (same as binding)
+    from hla_typing import get_patient_alleles
+    scoring_alleles = get_patient_alleles() if allele == "HLA-A*02:01" else [allele]
+    print(f"\nScoring immunogenicity (alleles: {scoring_alleles[:3]}...)...")
+    all_candidates = score_immunogenicity(all_candidates, alleles=scoring_alleles)
 
     # Step 4: Rank and design mRNA
     print("\nRanking and designing mRNA constructs...")
