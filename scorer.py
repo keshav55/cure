@@ -59,11 +59,9 @@ KNOWN_IMMUNOGENIC_SELF = {
     "YLQLVFGIEV",  # HER-2 (HLA-A*02:01)
     "RMFPNAPYL",   # WT1 (HLA-A*02:01)
     "KIGDFGLATV",  # BRAF wildtype epitope
-    # Ott 2017 trial — self-peptides that triggered T-cell responses
-    "RLFESWMRL",   # RUSC2 (epitope spreading)
-    "ALYGNFPLL",   # HEBP1 (epitope spreading)
-    # PIK3CA (Lo et al. validated TCR panel)
-    "ALHGGWTTK",   # PIK3CA H1047L (HLA-A*03:01)
+    # NOTE: RLFESWMRL (RUSC2), ALYGNFPLL (HEBP1), ALHGGWTTK (PIK3CA)
+    # are in the CLINICAL VALIDATION set. Adding them here would be
+    # data leakage. They were removed 2026-03-15.
 }
 
 # Anchor residues for HLA-A*02:01 position 2

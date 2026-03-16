@@ -1,6 +1,6 @@
 # cure
 
-Personalized cancer vaccine pipeline. Tumor DNA in, mRNA vaccine candidates out.
+A repo that leverages the best AI tools, models, and research to solve problems in health. We will find a cure, no matter what.
 
 ## What this does
 
@@ -14,16 +14,16 @@ tumor biopsy → DNA sequencing ($200-3K) → VCF file
 
 ## Validation
 
-Tested against peptides from published clinical trials (Ott 2017, TESLA 2020, Carreno 2015, validated KRAS/TP53 neoantigens).
+Tested against peptides from published clinical trials (Ott 2017, TESLA 2020, Carreno 2015).
 
-| Metric | Value |
-|--------|-------|
-| Clinical AUC | **0.869** |
-| Accuracy | 85% (17/20 clinical peptides) |
-| Spearman ρ | 0.735 |
-| Precision | 0.889 |
+| Dataset | N | AUC | 95% CI | Significant? |
+|---------|---|-----|--------|-------------|
+| TESLA | 608 | 0.595 | [0.50, 0.69] | Yes (p < 0.05) |
+| Clinical | 20 | 0.596 | [0.34, 0.85] | No (N too small) |
 
-Published state of the art on similar datasets: 0.70-0.85 AUC.
+Published state of the art: 0.74-0.81 AUC (DeepImmuno, PRIME, BigMHC).
+
+**Gap analysis:** We're missing tumor RNA expression (the #2 predictor after binding) and real wildtype sequences for TESLA. Adding these is the next step.
 
 ## Components
 
@@ -62,19 +62,33 @@ python validate.py
 1. **MHCflurry** (neural network) — predicts peptide-MHC binding across multiple HLA alleles
 2. **BLOSUM80 foreignness** — evolutionary distance of the mutation, weighted by conservation
 3. **Mutation dissimilarity** — cross-group amino acid changes at TCR-contact positions score highest
-4. **Known-immunogenic lookup** — 18 published TAA/viral epitopes with confirmed T-cell reactivity
+4. **Known-immunogenic lookup** — 14 published TAA/viral epitopes (no test-set overlap)
 5. **Anchor integrity** — penalizes mutations that destroy MHC binding anchors
 6. **TCR repertoire coverage** — rare residues at TCR contact positions increase immunogenicity
+
+## What's novel
+
+1. **Self-improving scorer.** Continuously optimized by an autoresearch daemon (1,000+ experiments, 67 improvements). No published neoantigen tool does this.
+2. **End-to-end pipeline.** VCF → protein → peptides → binding → scoring → mRNA. One repo.
+3. **BLOSUM80 conservation-weighted foreignness.** Biologically grounded mutation scoring.
+4. **mRNA codon optimizer.** Beam search + simulated annealing for translation efficiency, GC balance, CpG suppression.
 
 ## Background
 
 Started Pi Day 2026. Inspired by [Paul Conyngham](https://www.unsw.edu.au/news/2025/06/paul-turns-to-ai-to-save-his-dog-from-terminal-cancer) who used ChatGPT + AlphaFold to design a cancer vaccine for his dog Rosie. Tumor shrank 75%.
 
-The scorer is continuously improved by a self-improving daemon — a loop that proposes code changes, evaluates them against clinical data, keeps improvements, and discards regressions. 1,000+ experiments run, 67 improvements kept.
-
 ## Limitations
 
-- Validated on 20 clinical peptides. TESLA 608-peptide validation needs real wildtype sequences.
+- AUC = 0.595 (below SOTA 0.74-0.81). Missing tumor expression data and real wildtype sequences.
+- Validated on 608 TESLA peptides (statistically significant) + 20 clinical peptides (too small for significance).
 - mRNA sequences have not been synthesized or tested.
 - No wet lab validation.
 - Does not model proteasomal cleavage, TAP transport, or tumor heterogeneity.
+
+## Next steps
+
+1. Download NeoRanking dataset (figshare) — has real wildtype sequences + expression data
+2. Add `TUMOR_ABUNDANCE` as a feature — the #2 predictor
+3. Train on NeoRanking, test on TESLA — proper train/test split
+4. Compare to DeepImmuno, PRIME, BigMHC baselines
+5. Write it up
