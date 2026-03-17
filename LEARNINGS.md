@@ -668,3 +668,33 @@ Neoantigen vaccines should target "hot" tumors (melanoma, colon, lung adeno).
 - HiTIDE: 82% respond
 - NCI: 57% respond (unselected cohort)
 
+
+## Amino Acid Substitution Patterns (2026-03-17)
+
+### Enriched mutation types in immunogenic peptides
+| Group Change | Enrichment | Biological Rationale |
+|-------------|------------|---------------------|
+| polar→aromatic | 2.98x | Bulky aromatics create distinctive TCR contact |
+| S→F (most common) | 3.61x (14 positives) | Small → large, new van der Waals surface |
+| D→H | 10.0x | Negative → positive charge flip |
+| L→S | 10.6x | Hydrophobic → hydrophilic |
+
+### Depleted mutation types (never immunogenic)
+Q→K, H→N, M→I, T→S — all conservative within same property group
+
+### Peptide length
+9-mer: 0.21% positive (highest), 8-mer: 0.02% (lowest)
+9-mers are the canonical MHC-I binding length.
+
+### Mutation-type features in the ensemble
+Adding 5 mutation-type features: +0.022 recall@20 (0.662 → 0.684)
+Features: cross_group, enrichment_score, to_aromatic, charge_change, is_9mer
+Modest but positive — may warrant inclusion with larger datasets.
+
+### Paper implication
+The substitution type is a new signal independent of binding. Polar→aromatic
+mutations create structurally distinct peptides that the TCR recognizes.
+This is consistent with the TCR "bump hypothesis" — T-cells recognize
+peptide-MHC complexes where the mutant residue protrudes differently
+from the wildtype.
+
