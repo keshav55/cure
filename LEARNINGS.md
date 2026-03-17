@@ -732,3 +732,31 @@ from the wildtype.
 Can now claim: "Wilcoxon signed-rank p = 0.0076 (K=20), p = 0.0005 (K=30)"
 Need ~100 patients for definitive p < 0.001 — reachable with additional datasets.
 
+
+## HLA Allele-Specific Analysis (2026-03-17)
+
+### HLA gene enrichment
+| Gene | Pos | Neg | Enrichment | Interpretation |
+|------|-----|-----|-----------|---------------|
+| HLA-A | 55 | 44,662 | 1.6x | Most studied, best predictions |
+| HLA-B | 30 | 43,150 | 0.9x | Baseline |
+| HLA-C | 11 | 37,876 | 0.4x | Lower expression, less immunogenic |
+
+### Top enriched alleles
+B3503 (175x, 4/30 pos), C0704 (73x), A3002 (10x), A6801 (6.4x)
+Small samples — enrichment is noisy.
+
+### Binding threshold covers all positives
+All top alleles: 100% of positives captured at binding rank < 5.0.
+The problem is ranking WITHIN the captured set, not the gate itself.
+
+### Common vs rare alleles
+- Common (10 alleles): binding AUC = 0.971
+- Rare (all others): binding AUC = 0.965
+- **Prediction quality is robust across allele frequency.**
+
+### Implication
+No need for allele-specific models. The general ensemble handles
+all alleles well. HLA-C peptides should be downweighted slightly
+(0.4x baseline immunogenicity).
+
