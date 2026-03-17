@@ -937,3 +937,34 @@ because expression features already capture it. Clonality is weakly
 anti-correlated (opposite of theory). The 7-feature minimal set remains
 optimal — additional biological features don't add predictive value.
 
+
+## LOPO Safety Net Grid Search — Complete (2026-03-17)
+
+### Split optimization at K=20 (LOPO, 73 patients)
+| Split | Safety | Δ vs Bind | Worse | p-value |
+|-------|--------|-----------|-------|---------|
+| 5+15 | 0.612 | +0.083 | 8 | 0.041 * |
+| 8+12 | 0.643 | +0.114 | 4 | 0.004 ** |
+| **10+10** | **0.636** | **+0.107** | **2** | **0.002** ** |
+| 12+8 | 0.627 | +0.097 | 3 | 0.008 ** |
+| 15+5 | 0.616 | +0.087 | 3 | 0.011 * |
+
+10+10 is optimal: best p-value AND fewest regressions.
+
+### Different vaccine sizes (LOPO, 73 patients)
+| K | Split | Safety | Δ | Worse | p-value |
+|---|-------|--------|---|-------|---------|
+| 10 | 5+5 | 0.461 | +0.109 | 9 | 0.021 * |
+| 15 | 7+8 | 0.553 | +0.111 | 8 | 0.014 * |
+| 20 | 10+10 | 0.636 | +0.107 | 2 | 0.002 ** |
+| **30** | **15+15** | **0.699** | **+0.131** | **1** | **0.0001** *** |
+| 50 | 25+25 | 0.772 | +0.081 | 5 | 0.010 ** |
+
+**K=30 is the strongest result**: p = 0.0001, only 1 regression, +13% recall.
+For a 30-peptide vaccine, the safety net captures 70% of immunogenic peptides.
+
+### Definitive recommendation
+- **20-peptide vaccine**: 10 binding + 10 ensemble (p = 0.002)
+- **30-peptide vaccine**: 15 binding + 15 ensemble (p = 0.0001)
+- The safety net is significant at ALL vaccine sizes (p < 0.05)
+
