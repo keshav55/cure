@@ -160,6 +160,26 @@ TAP transport & 0.025 \\
 \caption{Random forest feature importance. Binding predictors dominate (76\%) but the remaining 24\% from stability, TAP, and expression features drives the 42\% improvement.}
 \end{table}
 
+\subsection{Mutation-Level Selection}
+
+Neoantigen vaccine design operates at two levels: peptide selection (which specific peptide-HLA pair?) and mutation selection (which gene mutation to target?). The ML ensemble provides far larger improvements at the mutation level:
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Level & Ensemble AUC & Binding AUC \\
+\midrule
+Peptide & 0.980 & 0.970 \\
+\textbf{Mutation} & \textbf{0.872} & \textbf{0.708} \\
+\bottomrule
+\end{tabular}
+\caption{The ensemble's advantage is 16$\times$ larger at mutation level ($+0.164$) than peptide level ($+0.010$). Expression features contribute substantially at mutation level but are redundant at peptide level.}
+\end{table}
+
+At mutation recall@10 (top 10 mutations per patient), the ensemble achieves 0.633 versus 0.366 for binding---a 73\% improvement. This reflects the shifted feature landscape: at mutation level, tumor expression (AUROC = 0.773) matches binding rank (0.770), whereas at peptide level binding alone reaches 0.968.
+
 \subsection{Negative Results}
 
 \textbf{Mutation-level selection does not help.} Grouping peptides by source mutation, scoring mutations by aggregated peptide scores, and selecting top mutations did not improve over peptide-level selection at the same budget (0.699 vs.\ 0.698 at $K$=20). The ensemble already captures mutation-level signal implicitly through expression and driver gene features.
