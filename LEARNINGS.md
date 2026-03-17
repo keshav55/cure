@@ -968,3 +968,27 @@ For a 30-peptide vaccine, the safety net captures 70% of immunogenic peptides.
 - **30-peptide vaccine**: 15 binding + 15 ensemble (p = 0.0001)
 - The safety net is significant at ALL vaccine sizes (p < 0.05)
 
+
+## Multiple Testing Correction & Effect Sizes (2026-03-17)
+
+### Bonferroni correction (9 tests, α/9 = 0.0056)
+| Test | Raw p | Bonferroni p | Significant? |
+|------|-------|-------------|-------------|
+| K=30 (15+15) | 0.0001 | **0.0009** | ✓ |
+| K=20 (10+10) | 0.0024 | **0.021** | ✓ |
+| K=20 (8+12) | 0.0036 | **0.033** | ✓ |
+| K=50 (25+25) | 0.0096 | 0.086 | ✗ |
+
+Three configurations survive Bonferroni. All 9 survive BH FDR.
+
+### Clinical effect sizes
+- K=20: +0.107 absolute improvement (+20.2% relative)
+- K=30: +0.131 absolute improvement (+23.1% relative)
+- Per patient: 0.3 extra immunogenic peptides captured
+- NNT analogy: treat 8-9 patients for 1 additional positive peptide found
+
+### Paper-ready claims (after correction)
+1. "Safety net improves recall@30 by +0.131 (Bonferroni p = 0.0009)"
+2. "Safety net improves recall@20 by +0.107 (Bonferroni p = 0.021)"
+3. "All configurations significant after BH FDR correction"
+
