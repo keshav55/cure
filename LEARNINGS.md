@@ -760,3 +760,41 @@ No need for allele-specific models. The general ensemble handles
 all alleles well. HLA-C peptides should be downweighted slightly
 (0.4x baseline immunogenicity).
 
+
+## Leave-One-Patient-Out Cross-Validation — Gold Standard (2026-03-17)
+
+### LOPO results (73 patients, 178 positives)
+| Method | recall@20 | Std |
+|--------|-----------|-----|
+| Ensemble | 0.604 | 0.432 |
+| Binding | 0.529 | 0.441 |
+| **Δ** | **+0.074** | |
+
+### Statistical significance
+- Wilcoxon p = 0.067 (ONE-SIDED) — marginally significant
+- 19 improved, 45 same, 9 worse
+- NOT significant at p < 0.05 with LOPO
+
+### Comparison with test-set evaluation
+| Evaluation | N patients | Δ recall@20 | p-value |
+|-----------|-----------|-------------|---------|
+| Test set only | 30 | +0.170 | 0.0076 |
+| **LOPO (all data)** | **73** | **+0.074** | **0.067** |
+
+### Why LOPO is less significant
+1. 45/73 patients are TIED (binding already finds their positives)
+2. 9 patients HURT by ensemble (binding was perfect, ensemble wasn't)
+3. More patients dilutes the signal-to-noise ratio
+4. Each fold trains on slightly different data (missing one patient)
+
+### Interpretation
+The ensemble helps when binding fails (19 patients, often with 1 positive
+among thousands). But it occasionally hurts patients where binding already
+succeeds (9 patients). The net effect is positive but the evidence is weaker
+than the test-set-only evaluation suggested.
+
+### Paper correction
+Should report LOPO as the primary evaluation alongside test-set results.
+Honest claim: "improvement of +0.074 (LOPO, p = 0.067) to +0.170
+(test set, p = 0.008) depending on evaluation protocol."
+
