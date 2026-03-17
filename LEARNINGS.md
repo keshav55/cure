@@ -214,3 +214,19 @@ Fair comparison: MHCflurry with 3 alleles (0.895) vs MHCflurry with
 1 matched (0.967). ΔAUROC = 0.072 for allele matching alone.
 
 Still the single largest factor, but honestly reported.
+
+## Correction: AUPRC Baseline Reporting (2026-03-16)
+
+### Issue (flagged by 5.4 Pro reviewer)
+We reported AUPRC = 0.691 with "6.8x random baseline" but the baseline
+(0.102) came from the SAMPLED evaluation (92 pos / 902 total = 10.2%
+positive rate). The full dataset has 96/125,784 = 0.076% positive rate.
+
+### Correction
+Paper must state: "AUPRC = 0.691 evaluated on downsampled data (92 pos,
+810 neg, 10.2% positive rate). The full dataset positive rate is 0.076%."
+
+The 6.8x lift is correct FOR THE SAMPLED DATA but would be much higher
+on the full dataset (where random baseline is 0.00076, not 0.102).
+This is not dishonest but it is unclear. The paper should be explicit
+about which evaluation context the AUPRC was computed on.
