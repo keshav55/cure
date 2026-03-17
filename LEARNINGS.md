@@ -900,3 +900,40 @@ For clinical use: keep top-2 peptides by binding rank as a safety floor.
 Use the ML ensemble for the remaining 18 slots. This achieves maximum
 recall with minimum risk.
 
+
+## Biology Deep Dive: Drivers, Zygosity, Clonality (2026-03-17)
+
+### Driver vs Passenger
+No driver annotations in test set (gene_driver_Intogen empty for all).
+Cannot test driver hypothesis on this data.
+
+### Zygosity: HET|LOH is 2.8x enriched
+| Zygosity | Pos | Total | Enrichment |
+|----------|-----|-------|-----------|
+| HET | 69 | 103,813 | 0.9x |
+| **HET|LOH** | **10** | **4,678** | **2.8x** |
+| LOH | 17 | 17,293 | 1.3x |
+
+LOH (loss of heterozygosity) means the tumor lost the wildtype allele.
+Only the mutant is expressed → higher antigen concentration → stronger
+immune response. HET|LOH (2.8x) > LOH (1.3x) > HET (0.9x).
+
+BUT: adding LOH as a feature HURTS the ensemble (-0.004 recall).
+The ensemble already captures the expression effect implicitly.
+
+### Clonality (CCF)
+- Immunogenic peptides have LOWER clonality (0.936 vs 0.980, p=0.046)
+- AUC = 0.473 (slightly anti-correlated)
+- Lowest CCF bin (0-0.3) has HIGHEST immunogenicity rate (1.36%)
+- This is counterintuitive: subclonal mutations shouldn't be better targets
+- Possible explanation: subclonal mutations are newer, less immunoedited
+
+### Tumor Content
+Not significant (p = 0.174). Mean TC: immunogenic 0.567, negative 0.537.
+
+### Key takeaway
+Zygosity (LOH) is a real biological signal but doesn't improve the model
+because expression features already capture it. Clonality is weakly
+anti-correlated (opposite of theory). The 7-feature minimal set remains
+optimal — additional biological features don't add predictive value.
+
