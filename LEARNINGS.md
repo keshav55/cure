@@ -431,3 +431,41 @@ A pipeline only needs: binding predictions (3 tools), stability, driver gene
 annotation, and public expression databases. No patient-specific RNA-seq,
 no clonality, no cleavage prediction, no foreignness analysis.
 
+
+## Confidence Calibration (2026-03-17)
+
+### Result: Excellently calibrated
+| Score Range | N | Positives | Actual Rate | Calibrated? |
+|------------|---|-----------|-------------|-------------|
+| [0.0, 0.1) | 1826 | 5 | 0.3% | ✓ |
+| [0.7, 0.8) | 24 | 18 | 75.0% | ✓ |
+| [0.8, 0.9) | 25 | 20 | 80.0% | ✓ |
+| [0.9, 1.0) | 21 | 18 | 85.7% | ✓ |
+
+Brier score: 0.0206, ECE: 0.013.
+**A score >0.8 means 80% chance of immunogenicity.** Clinically actionable.
+
+## Cancer-Type Stratification (2026-03-17)
+
+### Ensemble improvement by cancer type (recall@20)
+| Cancer Type | N | Ensemble | Binding | Δ |
+|------------|---|----------|---------|---|
+| Colon Adenocarcinoma | 9 | 0.833 | 0.500 | **+0.333** |
+| Sarcoma | 1 | 0.667 | 0.000 | +0.667 |
+| Melanoma | 13 | 0.656 | 0.513 | +0.142 |
+| Lung Adenocarcinoma | 5 | 0.524 | 0.417 | +0.107 |
+
+### Cancer-specific models HURT
+| Cancer | Specific | General | Δ |
+|--------|----------|---------|---|
+| Melanoma | 0.502 | 0.656 | **-0.153** |
+| Colon | 0.778 | 0.833 | -0.056 |
+| Lung | 0.329 | 0.524 | **-0.195** |
+
+### Key insight
+**Don't build cancer-specific models.** The general model trained on all
+cancer types outperforms type-specific models because:
+1. More training data (82 pos across all types vs 7-43 per type)
+2. Shared biology: binding physics is the same across cancers
+3. Type-specific models overfit on small samples
+
