@@ -469,3 +469,35 @@ cancer types outperforms type-specific models because:
 2. Shared biology: binding physics is the same across cancers
 3. Type-specific models overfit on small samples
 
+
+## Training Data Augmentation — All Strategies FAIL (2026-03-17)
+
+### Mutation-level propagation: 0.710 → 0.338
+Adding peptides from positive mutations as "soft positives" DESTROYS recall.
+Only ~1/45 peptides per mutation is actually immunogenic. The rest are noise.
+
+### Negative sampling ratio: 5000 is optimal
+| Neg samples | recall@20 |
+|------------|-----------|
+| 1000 | 0.650 |
+| 2000 | 0.572 |
+| 5000 | **0.710** |
+| 10000 | 0.624 |
+| 20000 | 0.589 |
+
+### Self-training: hurts at all thresholds
+Even high-confidence (>0.9) pseudo-positives hurt (0.710 → 0.667).
+The model's "confident positives" include many strong binders that
+are truly negative — adding them corrupts the training signal.
+
+### Key insight
+**The 82 real positives are irreplaceable. No training trick substitutes
+for more real data.** The only way to improve beyond 0.710 is more
+validated CD8+ responses from new clinical trials.
+
+### Optimal configuration (confirmed)
+- 7 minimal features
+- 82 real positives + 5000 sampled negatives
+- GBT 0.4 + RF 0.4 + LR 0.2
+- recall@20 = 0.710
+
