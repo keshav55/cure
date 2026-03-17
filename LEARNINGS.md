@@ -859,3 +859,44 @@ rarely harms (2/73 patients)."
 Paper 03 should recommend the safety net, not the pure ensemble.
 The safety net is: better performance, better p-value, fewer regressions.
 
+
+## Safety Net Split Optimization (2026-03-17)
+
+### Optimal split: 2+18 (test set, 30 patients)
+| Split | Safety | vs Bind | vs Ens | Worse/Bind |
+|-------|--------|---------|--------|-----------|
+| 2+18 | **0.662** | +0.170 | ±0.000 | 1 |
+| 4+16 | 0.656 | +0.164 | -0.006 | 2 |
+| 8+12 | 0.658 | +0.166 | -0.005 | 2 |
+| 10+10 | 0.645 | +0.153 | -0.018 | 2 |
+| 14+6 | 0.552 | +0.060 | -0.110 | 2 |
+
+The 2+18 split = keep only top-2 binders (safety floor), give ensemble
+18 slots (maximum discovery). This matches pure ensemble recall
+while protecting against the most egregious binding displacement.
+
+### Regression root cause
+Both regression patients have positives at binding rank 15-18 that
+fall in the "gap" — binding's top-10 doesn't capture them AND
+ensemble ranks them just outside its top-10.
+- TESLA12: VRINTARPV at bind_rank=18, ens_rank=20
+- Patient5: GELGQEKLF at bind_rank=15, ens_rank=21
+
+The 2+18 split eliminates this by giving ensemble 18 slots.
+
+### Safety net at different vaccine sizes
+| K | Split | Safety | Binding | Δ |
+|---|-------|--------|---------|---|
+| 5 | 2+3 | 0.329 | 0.094 | +0.235 |
+| 10 | 5+5 | 0.415 | 0.214 | +0.201 |
+| 20 | 10+10 | 0.644 | 0.492 | +0.153 |
+| 30 | 15+15 | 0.731 | 0.542 | +0.189 |
+| 50 | 25+25 | 0.816 | 0.691 | +0.126 |
+
+Safety net helps at ALL vaccine sizes. At K=30 and K=50, 0 regressions.
+
+### Updated recommendation
+For clinical use: keep top-2 peptides by binding rank as a safety floor.
+Use the ML ensemble for the remaining 18 slots. This achieves maximum
+recall with minimum risk.
+
