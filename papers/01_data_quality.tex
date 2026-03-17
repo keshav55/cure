@@ -71,19 +71,21 @@ The end-to-end pipeline accepts tumor mutations (VCF format), fetches protein se
 \begin{table}[ht]
 \centering
 \footnotesize
-\begin{tabular}{@{}lr@{}}
+\begin{tabular}{@{}lrr@{}}
 \toprule
-Configuration & AUROC \\
+Configuration & Alleles & AUROC \\
 \midrule
-Our scorer, 3 default alleles & 0.156 \\
-Our scorer, patient-matched & 0.909 \\
-Binding rank only, patient-matched & \textbf{0.968} \\
+MHCflurry, 3 defaults & 3 & 0.895 \\
+MHCflurry, 12 common & 12 & 0.927 \\
+MHCflurry, patient-matched & 1 & \textbf{0.967} \\
 \bottomrule
 \end{tabular}
-\caption{Impact of HLA allele matching (N = 125,784). Same algorithm; different input alleles. $\Delta$AUROC = 0.812.}
+\caption{Impact of HLA allele selection (MHCflurry presentation score, same scorer). Allele matching ($\Delta$AUROC = 0.040 from 12$\to$1) contributes more than allele count ($\Delta$AUROC = 0.032 from 3$\to$12). Patient allele included in 12-allele set 37\% of the time.}
 \end{table}
 
-With three default HLA alleles, 78\% of peptides---including 78\% of confirmed immunogenic peptides---were rejected by the MHC binding gate (affinity $>$ 5,000 nM). With patient-matched alleles, gating dropped to 4\% of positives.
+With three default alleles (A*02:01, A*03:01, A*11:01), only 19\% of peptides were evaluated against their correct restricting allele. Expanding to 12 common alleles increases overlap to 37\%. Using the patient's actual allele achieves 100\% overlap and the highest AUROC.
+
+Note: an earlier analysis comparing our full multi-feature scorer at 3 alleles (AUROC = 0.156) against NeoRanking binding rank at patient alleles (0.968) conflated allele mismatch with scorer complexity. The controlled comparison above isolates the allele matching effect using the same scorer (MHCflurry).
 
 \subsection{Algorithmic Features Decrease Performance}
 
@@ -119,10 +121,10 @@ Threshold & Precision & Recall \\
 0.50 & 0.454 & 0.913 \\
 \bottomrule
 \end{tabular}
-\caption{Precision-recall at clinical operating points. AUPRC = 0.691 (6.8$\times$ random).}
+\caption{Precision-recall at clinical operating points (our scorer, patient-matched alleles, downsampled evaluation: 92 pos, 810 neg). AUPRC = 0.691 on downsampled data (positive rate 10.2\%). Full dataset positive rate is 0.076\%.}
 \end{table}
 
-At the clinical operating point (threshold = 0.59), the scorer achieves 82\% recall with 49\% precision: of 20 predicted immunogenic peptides, approximately 10 would trigger T-cell responses.
+At the clinical operating point (threshold = 0.59), the scorer achieves 82\% recall with 49\% precision: of 20 predicted immunogenic peptides, approximately 10 would trigger T-cell responses. Note: precision-recall metrics are evaluated on downsampled data (10.2\% positive rate vs.\ 0.076\% in the full dataset) and would shift at the true class ratio.
 
 \subsection{Feature Importance}
 
