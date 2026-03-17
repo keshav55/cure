@@ -798,3 +798,32 @@ Should report LOPO as the primary evaluation alongside test-set results.
 Honest claim: "improvement of +0.074 (LOPO, p = 0.067) to +0.170
 (test set, p = 0.008) depending on evaluation protocol."
 
+
+## Why Ensemble Hurts Some Patients (2026-03-17)
+
+### Two failure modes
+**Good binders displaced (5 patients):**
+4095, 3995, 4284, 4317, Patient7 — positives rank 1-14 by binding.
+Ensemble pushes non-immunogenic peptides with high expression/CSCAPE above them.
+Fix: if binding already finds positives, don't use ensemble.
+
+**Genuinely hard (4 patients):**
+Patient9, 3678, 2369, 4000 — positives rank 49-195.
+Neither binding NOR ensemble finds them. These need new features.
+
+### Pool size doesn't cleanly separate
+7/9 hurt patients have >=500 peptides. The issue isn't pool size —
+it's whether the positive peptide is a strong binder.
+
+### Practical recommendation
+For clinical use: run BOTH binding rank and ensemble.
+- If binding finds strong candidates (rank < 5), include them regardless
+- Use ensemble for the remaining slots
+- This is a "safety net" approach that preserves binding's strengths
+
+### The fundamental tension
+Binding rank is SAFE (never harmful for good binders) but INCOMPLETE
+(misses 50% of positives). The ensemble is MORE COMPLETE (+7%) but
+OCCASIONALLY HARMFUL (pushes good binders out of top-20). There's no
+free lunch — improving recall on hard patients risks hurting easy patients.
+
