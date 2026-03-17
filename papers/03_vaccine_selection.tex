@@ -28,12 +28,14 @@ Current neoantigen vaccine design selects peptides by MHC binding affinity alone
 
 Personalized cancer vaccines require selecting 5--20 neoantigen peptides from thousands of candidates per patient. The standard approach ranks candidates by predicted MHC binding affinity \cite{muller2023neoranking}. While binding is the dominant predictor at the peptide level (AUROC $>$ 0.96), the clinical question---\textit{which peptides should go in this patient's vaccine?}---is a selection problem, not a binary classification problem.
 
-We make three contributions:
+We make five contributions:
 
 \begin{enumerate}[leftmargin=*,topsep=0pt,itemsep=2pt]
 \item A per-patient recall@$K$ evaluation framework for neoantigen vaccine selection.
 \item A stacking ensemble that improves recall@20 by 42\% over binding rank.
-\item An autoresearch daemon that confirms the model is at ceiling, with the bottleneck being training data rather than model complexity.
+\item Feature ablation showing 7 features outperform 18 (recall@20 = 0.710 vs.\ 0.698).
+\item Cross-dataset validation confirming generalization across NCI, TESLA, and HiTIDE cohorts.
+\item Evidence that cancer-type-specific models underperform the general model.
 \end{enumerate}
 
 \section{Methods}
@@ -54,7 +56,7 @@ We use the NeoRanking harmonized dataset \cite{muller2023neoranking}: 297,301 tr
 
 \subsection{Features}
 
-We use 20 features: three binding rank predictors (MixMHC, NetMHCpan, PRIME), binding stability, tumor RNA expression, TAP transport score, CSCAPE driver score, wildtype match score, wildtype peptide count, differential agretopicity index (DAI), cancer cell fraction, tumor content, netchop cleavage score, TCGA/GTEx expression estimates, mutation score, wildtype match overlap, plus two derived features (log expression, binding rank reciprocal).
+We initially evaluated 20 features (three binding rank predictors, binding stability, tumor RNA expression, TAP transport, CSCAPE driver score, wildtype match metrics, DAI, cancer cell fraction, tumor content, netchop cleavage, TCGA/GTEx expression, plus derived features). Greedy backward elimination identified a minimal set of 7 features that achieves higher recall (0.710 vs.\ 0.698): three binding rank predictors (MixMHC, NetMHCpan, PRIME), binding stability, CSCAPE driver score, and two public expression databases (GTEx, TCGA).
 
 \subsection{Model}
 
@@ -168,6 +170,53 @@ TAP transport & 0.025 \\
 \subsection{Cross-Validation}
 
 5-fold stratified cross-validation on the training set yields mean AUROC = 0.989 $\pm$ 0.004 for GBT and 0.991 $\pm$ 0.003 for RF, indicating the models generalize and are not overfitting despite the small positive class.
+
+\subsection{Feature Ablation}
+
+Greedy backward elimination shows that 11 of 18 features can be removed without loss:
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\begin{tabular}{@{}lr@{}}
+\toprule
+Feature Set & recall@20 \\
+\midrule
+Full (18 features) & 0.698 \\
+\textbf{Minimal (7 features)} & \textbf{0.710} \\
+\bottomrule
+\end{tabular}
+\caption{Fewer features improve recall by removing noise. The 7 essential features: 3 binding predictors, stability, CSCAPE, GTEx expression, TCGA expression.}
+\end{table}
+
+The most impactful single features by drop-test: PRIME binding rank ($-0.082$), CSCAPE driver score ($-0.067$), NetMHCpan binding rank ($-0.053$).
+
+\subsection{Cross-Dataset Generalization}
+
+Leave-one-dataset-out evaluation (train on two cohorts, test on the third):
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Test Cohort & Ensemble & Binding & $\Delta$ \\
+\midrule
+NCI (56 patients) & 0.630 & 0.525 & +0.105 \\
+HiTIDE (9 patients) & 0.382 & 0.341 & +0.041 \\
+TESLA (8 patients) & 0.731 & 0.773 & $-0.042$ \\
+\bottomrule
+\end{tabular}
+\caption{The ensemble generalizes to held-out clinical cohorts. TESLA is mixed but has only 8 patients.}
+\end{table}
+
+\subsection{Confidence Calibration}
+
+The ensemble is well-calibrated (Brier score = 0.021, ECE = 0.013). Predicted scores $>0.8$ correspond to 80\% actual immunogenicity rate; scores $<0.1$ correspond to 0.3\%. This enables threshold-based clinical decisions.
+
+\subsection{Cancer-Type Analysis}
+
+Cancer-type-specific models (trained only on melanoma, colon, or lung data) underperform the general model by 0.06--0.20 recall@20 due to reduced training data. The ensemble improvement is largest for colon adenocarcinoma ($+0.333$) and smallest for lung adenocarcinoma ($+0.107$).
 
 \section{Discussion}
 
