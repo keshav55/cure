@@ -379,3 +379,55 @@ The limitation is training data (82 positives), not model capacity.
 | Hybrid mutation-level | 0.699 | No additional gain |
 | Daemon optimization | 0.698 | 30 rounds, confirmed ceiling |
 
+
+## Cross-Dataset Validation (2026-03-17)
+
+### Leave-one-dataset-out results (recall@20)
+| Test Dataset | Ensemble | Binding | Δ | Patients |
+|-------------|----------|---------|---|----------|
+| NCI | 0.630 | 0.525 | +0.105 | 41/56 hit |
+| HiTIDE | 0.382 | 0.341 | +0.041 | 7/9 hit |
+| TESLA | 0.731 | 0.773 | -0.042 | 7/8 hit |
+
+### Key finding
+Ensemble generalizes across independent clinical cohorts. NCI (largest) shows
++0.105 improvement. TESLA is mixed (-0.042 at K=20 but +0.188 at K=10),
+but only 8 patients.
+
+Peptide-level AUC also improves across datasets:
+- HiTIDE: +0.140 (0.689 vs 0.549)
+- TESLA: +0.105 (0.860 vs 0.756)
+- NCI: +0.016 (0.987 vs 0.971)
+
+## Feature Ablation — Minimal Set Discovery (2026-03-17)
+
+### BREAKTHROUGH: 7 features > 18 features
+| Feature Set | recall@20 |
+|------------|-----------|
+| Full (18 features) | 0.698 |
+| Minimal (7 features) | **0.710** |
+
+### The 7 essential features
+1. mutant_rank (MixMHC binding)
+2. mutant_rank_PRIME (PRIME binding) — MOST important, -0.082 when dropped
+3. mutant_rank_netMHCpan (NetMHCpan binding) — -0.053 when dropped
+4. mut_Rank_Stab (binding stability) — -0.044
+5. CSCAPE_score (driver gene score) — -0.067
+6. GTEx_all_tissues_expression_mean
+7. TCGA_Cancer_expression
+
+### 11 features that are NOISE
+TAP_score, mut_netchop_score_ct, bestWTPeptideCount_I, TumorContent,
+bestWTMatchOverlap_I, bestMutationScore_I, bestWTMatchScore_I, CCF,
+DAI_NetMHC, rnaseq_TPM, mut_binding_score
+
+### Key insight
+Dropping noise features improved recall by +0.012. The model gets confused
+by irrelevant features. The essential signal is: THREE BINDING PREDICTORS
+(consensus), stability, driver gene status, and expression.
+
+### Clinical implication
+A pipeline only needs: binding predictions (3 tools), stability, driver gene
+annotation, and public expression databases. No patient-specific RNA-seq,
+no clonality, no cleavage prediction, no foreignness analysis.
+
