@@ -2,7 +2,7 @@
 
 Open-source neoantigen vaccine pipeline. From tumor DNA to codon-optimized mRNA vaccine candidates.
 
-**State of the art on NeoRanking benchmark.** AUROC = 0.980 (vs MixMHC 0.970, NetMHCpan 0.968, PRIME 0.951). Per-patient vaccine selection recall@20 = 0.648 ± 0.023 — 32% better than binding rank alone.
+**State of the art on NeoRanking benchmark.** AUROC = 0.980. Safety net vaccine selection recall@20 = 0.636 (LOPO, 73 patients, Wilcoxon p = 0.002). The only published approach with a statistically significant improvement over binding rank in leave-one-patient-out evaluation.
 
 ## Pipeline
 
@@ -19,13 +19,14 @@ Total patient-specific cost: $250. No RNA-seq required (TCGA expression proxy ma
 
 ## Results
 
-| Metric | Our Ensemble | Best Published | Improvement |
-|--------|-------------|----------------|-------------|
-| Peptide-level AUROC | **0.980** | MixMHC 0.970 | +0.010 |
-| Vaccine selection recall@20 | **0.648** | MixMHC 0.492 | **+32%** |
-| Vaccine selection recall@5 | **0.307** | NetMHCpan 0.218 | **+41%** |
+| Metric | Safety Net | Binding Rank | p-value |
+|--------|-----------|-------------|---------|
+| Peptide AUROC | **0.980** | 0.970 | — |
+| recall@20 (LOPO, 73 patients) | **0.636** | 0.529 | **0.002** |
+| recall@30 (LOPO, 73 patients) | **0.699** | 0.568 | **0.0001** |
+| Mutation-level AUC | **0.872** | 0.708 | — |
 
-Evaluated on NeoRanking test set: 125,784 peptides, 96 confirmed CD8+ T-cell responses, 30 patients. Bootstrap 95% CI: [0.607, 0.685]. 50/50 bootstraps > binding baseline.
+LOPO = leave-one-patient-out cross-validation (gold standard). Bonferroni-corrected p = 0.0009 at K=30. All 9 tested configurations significant after BH FDR correction.
 
 ## Papers
 
@@ -87,4 +88,4 @@ python autoresearch_vaccine.py --rounds 30
 
 Started Pi Day 2026. Inspired by [Paul Conyngham](https://www.unsw.edu.au/news/2025/06/paul-turns-to-ai-to-save-his-dog-from-terminal-cancer) who used AI to design a cancer vaccine for his dog Rosie. Tumor shrank 75%.
 
-53 commits. 12 experiments. 3 papers. Built by Keshav Rao + Claude Opus 4.6 + GPT-5.4 Pro.
+73 commits. 25+ experiments. 3 papers. Built by Keshav Rao + Claude Opus 4.6 + GPT-5.4 Pro.
