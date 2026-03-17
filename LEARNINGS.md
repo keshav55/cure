@@ -538,3 +538,36 @@ which 5000 (out of 297K) determines the decision boundary.
 Replace "42% improvement" with "24% improvement (95% CI: 6-39%)"
 Add bootstrap CI to all recall@20 claims.
 
+
+## Deep Dive: Why Patients Are Missed (2026-03-17)
+
+### Patient4 (melanoma, always missed)
+- Peptide: KVVAPAIKM (R→K mutation in PCNX2)
+- **Conservative substitution** (R→K, same positive charge group)
+- Binding rank: 0.60 (49th of 97 = mediocre)
+- BUT: CSCAPE = 0.957 (ranks 6th!) — CSCAPE could rescue this patient
+- Current ensemble weights CSCAPE too low for this to surface
+
+### Patient 4324 (colon, always missed)
+- Peptide: DRNIFRHSVV (T→I mutation in **TP53**)
+- Binding rank: 8.0 (1354th of 4310) — barely binds MHC
+- **TUMOR DRIVER** — confirmed Intogen driver gene
+- This is genuinely unpredictable from binding features
+- May be CD4-mediated or unconventional immune mechanism
+
+### Patient 4014 (lung, 1% hit rate)
+- Peptide: QDAAAFQLW (V→F mutation in TGFBRAP1)  
+- Binding rank: 0.20 (78th of 7436 — decent but drowned out)
+- Expression: 4.0 (very low vs top-20 avg 23.9)
+- CSCAPE: 0.619 (middling vs top-20 higher)
+
+### Difficulty classification
+- EASY (median pos rank ≤ 20): 12 patients — already found by binding
+- MEDIUM (rank 20-100): 15 patients — ensemble can help
+- HARD (rank > 100): 3 patients — very difficult, may need new features
+
+### Biological pattern
+Missed patients share: conservative mutations (R→K, V→F, T→I),
+weak binding, low expression. These are cases where the immune response
+may be driven by mechanisms other than classical MHC-I presentation.
+
