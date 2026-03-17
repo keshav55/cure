@@ -225,9 +225,24 @@ Cancer-type-specific models (trained only on melanoma, colon, or lung data) unde
 
 At the peptide-level classification task (AUROC), logistic regression achieves 0.977---only marginally above binding rank alone (0.968). But at the selection task (recall@$K$), the ensemble achieves a 42\% improvement. This gap arises because selection is sensitive to the \textit{ranking} of the top candidates within each patient, where small probability differences matter. The ensemble combines three models that err on different patients, improving the expected maximum rank of immunogenic peptides.
 
-\subsection{Practical Implications}
+\subsection{Safety Net Strategy}
 
-For a 20-peptide vaccine, the ensemble would capture approximately 70\% of a patient's confirmed immunogenic peptides, versus 49\% for binding rank alone. At the most restrictive selection ($K$=2), the improvement is 4$\times$ (22\% vs.\ 5.7\%). This directly translates to more effective vaccines.
+Pure ensemble use occasionally displaces well-ranked binding candidates. We propose a ``safety net'' approach: select top-10 peptides by binding rank (preserving safe, well-characterized candidates), then select 10 additional peptides by ensemble score not already in the binding set (adding diversity). In leave-one-patient-out evaluation (73 patients), the safety net achieves recall@20 = 0.636 (vs.\ 0.529 for binding, Wilcoxon $p$ = 0.002) while reducing patient-level regressions from 9 (pure ensemble) to 2.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Method & recall@20 & Worse & $p$ vs.\ binding \\
+\midrule
+Binding only & 0.529 & --- & --- \\
+Ensemble only & 0.604 & 9 & 0.067 \\
+\textbf{Safety net (10+10)} & \textbf{0.636} & \textbf{2} & \textbf{0.002} \\
+\bottomrule
+\end{tabular}
+\caption{LOPO evaluation (73 patients). The safety net combines binding's reliability with the ensemble's discovery of non-obvious candidates.}
+\end{table}
 
 \subsection{Bootstrap Stability}
 
@@ -239,7 +254,7 @@ The evaluation is on 30 patients with confirmed CD8$^{+}$ responses from three c
 
 \section{Conclusion}
 
-Framing neoantigen selection as a per-patient retrieval problem reveals that simple ML ensembles outperform the standard binding-rank approach. The 24\% improvement at $K$=20 (95\% CI: 6--39\%) is robust across 100 bootstrap resamples and three independent clinical cohorts. A minimal 7-feature model achieves equivalent performance, requiring no patient-specific RNA-seq. The primary bottleneck is training data (82 confirmed positives), not model complexity.
+Framing neoantigen selection as a per-patient retrieval problem reveals that combining binding rank with ML ensemble predictions (``safety net'': top-10 binding + top-10 ensemble) improves recall@20 from 0.529 to 0.636 (LOPO, 73 patients, Wilcoxon $p$ = 0.002) while causing regressions in only 2/73 patients. This outperforms both pure binding and pure ensemble approaches. A minimal 7-feature model requires no patient-specific RNA-seq. The primary bottleneck is training data (178 positives across 73 patients), not model complexity.
 
 \begin{thebibliography}{9}
 \bibitem{muller2023neoranking} M\"{u}ller, M.\ et al.\ Machine learning and harmonized datasets improve immunogenic neoantigen prediction. \textit{Immunity} 56, 2650--2663 (2023).
