@@ -1040,3 +1040,42 @@ The clinical recommendation changes: for MUTATION selection (which gene to targe
 the ML ensemble is essential (+0.164 AUC). For PEPTIDE selection (which specific
 peptide), the safety net gives a modest improvement (+0.107 recall@20).
 
+
+## Anti-Correlation Explanations (2026-03-17)
+
+### n_peptides: patient-level confound, NOT biology
+- Between patients: immunogenic mutations have 14.1 peptides, non-immunogenic 34.0
+- **Within patients**: immunogenic have +0.5 peptides (p=0.28, NOT significant)
+- Cause: small TESLA patients (few peps/mut) have high response rates,
+  large NCI patients (many peps/mut) have low rates. Patient size confound.
+
+### good_alleles: also confounded
+- Immunogenic: 1.81 good alleles vs non-immunogenic: 1.73
+- Barely different. The AUC anti-correlation was patient-level noise.
+
+## Two-Level Pipeline: Mutation→Peptide (2026-03-17)
+
+### Results (test set, 30 patients)
+| Top-K mutations | Two-level | Binding | Δ |
+|----------------|-----------|---------|---|
+| 5 | 0.247 | 0.094 | **+0.153** |
+| 10 | **0.421** | 0.208 | **+0.213** |
+| 15 | 0.443 | 0.374 | +0.069 |
+| 20 | 0.516 | 0.444 | +0.073 |
+
+### How it works
+1. Score mutations by ML ensemble (expression + binding + CSCAPE)
+2. Select top-K mutations
+3. For each mutation, pick the best-binding peptide
+
+### Key insight
+At top-10 mutations, the two-level pipeline captures **2x more immunogenic
+peptides** than binding alone. The mutation-level model excels at identifying
+expressed, driver-associated mutations that binding rank alone misses.
+
+### Clinical recommendation
+For vaccine design, the optimal pipeline is:
+1. **Mutation selection**: ML ensemble (AUC 0.872) → pick top 10-15 mutations
+2. **Peptide selection per mutation**: binding rank → pick best peptide
+3. **Safety net**: also include top-5 binding-only peptides as backup
+
