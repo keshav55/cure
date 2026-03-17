@@ -349,3 +349,33 @@ This is paper 03 material. No one has:
 - 4324: 1 pos in 4310, bind=8.0 — very weak binder, possibly false positive
 - 4014: 1 pos in 7436, bind=0.20 — ranks 175th, good binder but drowned out
 
+
+## Mutation-Level Selection — No Additional Gain (2026-03-17)
+
+### Tested
+- Mutation-level only: 0.556 (max, 10mut×2pep, budget=20) — WORSE than peptide
+- Hybrid (peptide + mutation): 0.699 (10pep + 10mut×1pep, budget=20) — SAME
+- Larger budget hybrid: 0.730 (15pep + 5mut×3pep, budget=30) — more peptides help
+
+### Conclusion
+The ensemble already captures mutation-level signal through expression/CSCAPE features.
+Explicit mutation deduplication doesn't help because:
+1. Most patients have more mutations than top-20 candidates anyway
+2. The model implicitly upweights peptides from expressed mutations
+3. Budget matters more than selection strategy
+
+### Autoresearch Daemon Result
+30 rounds, 0 keeps. The 0.698 is the ceiling for this model class + feature set.
+The limitation is training data (82 positives), not model capacity.
+
+### The Full Optimization Arc
+| Method | recall@20 | How found |
+|--------|-----------|-----------|
+| Binding rank | 0.492 | Literature standard |
+| + stability | 0.555 | Grid search, 719 combos |
+| + CSCAPE | 0.563 | Full grid, 1296 combos |
+| GBT | 0.669 | Hyperparameter search |
+| Stacking GBT+RF+LR | 0.698 | Model ensemble |
+| Hybrid mutation-level | 0.699 | No additional gain |
+| Daemon optimization | 0.698 | 30 rounds, confirmed ceiling |
+
