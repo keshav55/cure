@@ -827,3 +827,35 @@ Binding rank is SAFE (never harmful for good binders) but INCOMPLETE
 OCCASIONALLY HARMFUL (pushes good binders out of top-20). There's no
 free lunch — improving recall on hard patients risks hurting easy patients.
 
+
+## BREAKTHROUGH: Safety Net Strategy (2026-03-17)
+
+### Results (LOPO, 73 patients)
+| Method | recall@20 | vs Binding | Worse | p-value |
+|--------|-----------|-----------|-------|---------|
+| Binding only | 0.529 | — | — | — |
+| Ensemble only | 0.604 | +0.074 | 9 patients | 0.067 |
+| **SAFETY NET (10+10)** | **0.636** | **+0.107** | **2 patients** | **0.002** |
+
+### How it works
+1. Select top-10 peptides by binding rank (safe, preserves easy wins)
+2. Select top-10 by ensemble EXCLUDING binding's picks (adds diversity)
+3. Union = 20 unique peptides that combine both approaches
+
+### Why it's better than pure ensemble
+- Binding's top-10 guarantees good binders are always included
+- Ensemble's picks ADD information rather than DISPLACING binding
+- Regressions drop from 9 → 2 patients
+- p-value drops from 0.067 → 0.002 (now HIGHLY significant)
+
+### The right recommendation for clinical use
+"Select top-10 peptides by binding rank. Use the ML ensemble to
+select 10 additional peptides not already in the binding set.
+This strategy captures 64% of immunogenic peptides (vs 53% for
+binding alone), is statistically significant (p = 0.002), and
+rarely harms (2/73 patients)."
+
+### This changes the paper
+Paper 03 should recommend the safety net, not the pure ensemble.
+The safety net is: better performance, better p-value, fewer regressions.
+
