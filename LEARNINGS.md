@@ -608,3 +608,30 @@ not calibrated for per-patient ranking. It produces a single score per
 mutation but doesn't rank well within patients. Our ensemble is trained
 on peptide-level labels with per-patient ranking as the evaluation metric.
 
+
+## Multi-Seed Negative Bagging (2026-03-17)
+
+### Result: reduces variance by 42%
+| Seeds | recall@20 | AUC |
+|-------|-----------|-----|
+| 1 | 0.649 | 0.981 |
+| 5 | 0.658 | 0.979 |
+| 10 | 0.662 | 0.979 |
+| 50 | 0.656 | 0.982 |
+
+### Bootstrap with 10-seed averaging
+- Mean: 0.648 ± 0.023 (95% CI: [0.607, 0.685])
+- Single-seed bootstrap: 0.608 ± 0.040 (95% CI: [0.521, 0.685])
+- Variance reduction: 42% (std 0.023 vs 0.040)
+- 50/50 bootstraps > 0.492 (binding)
+
+### Honest numbers for the paper
+The most defensible claim is: recall@20 = 0.648 ± 0.023 (10-seed, bootstrap)
+Improvement over binding: +32% (0.648 vs 0.492)
+All 50 bootstraps beat binding → p < 0.02
+
+### How multi-seed helps
+Each model sees different negatives → different decision boundaries.
+Averaging smooths out which negatives happened to be near positives.
+Analogous to bagging but over the negative sampling rather than the full dataset.
+
