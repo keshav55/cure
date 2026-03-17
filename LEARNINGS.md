@@ -230,3 +230,36 @@ The 6.8x lift is correct FOR THE SAMPLED DATA but would be much higher
 on the full dataset (where random baseline is 0.00076, not 0.102).
 This is not dishonest but it is unclear. The paper should be explicit
 about which evaluation context the AUPRC was computed on.
+
+## Experiment: Mutation-Level Prediction (2026-03-16)
+
+### Result
+The clinical question "which mutation to vaccinate against?" (N=4,307):
+  Expression only:                AUC = 0.774
+  Binding only:                   AUC = 0.702
+  Expr + binding:                 AUC = 0.785
+  Optimized 4 features:           AUC = 0.822
+
+Optimal weights: expression=0.5, binding=0.2, n_alleles=0.2, alt_rna=0.1
+
+### Learning
+**At mutation level, expression is 2.5x more important than binding.**
+The optimal weight ratio is 50% expression vs 20% binding.
+
+This makes biological sense: a mutation in a highly expressed gene
+produces more peptides across more cells. Even if each peptide binds
+moderately, the sheer number of copies increases the chance a T-cell
+sees it.
+
+Cancer cell fraction (clonality) doesn't help (weight=0). Surprising —
+theory says clonal mutations are better targets. Possibly because
+the NeoRanking cohort is enriched for clonal mutations already.
+
+### Two-level prediction summary
+  Peptide level: binding alone = 0.967 (solved)
+  Mutation level: expression + binding = 0.822 (harder, more valuable)
+
+The pipeline should rank at BOTH levels:
+  1. Filter mutations by expression (top 50%)
+  2. For each mutation, rank peptides by binding
+  3. Select top peptide per top mutation
