@@ -183,3 +183,34 @@ the features it produced.
 
 Kalanick was right: fewest rules while staying out of chaos.
 The fewest rules here is one feature: does it bind?
+
+## Experiment: Allele Count vs Allele Matching Ablation (2026-03-16)
+
+### Result (addresses 5.4 Pro reviewer critique)
+  1 patient-matched allele:    AUROC = 0.967
+  12 common alleles:           AUROC = 0.927 (37% include correct allele)
+  3 original defaults:         AUROC = 0.895 (19% include correct allele)
+
+### Learning
+**Both allele count AND matching matter, but matching matters more.**
+  3→12 alleles (more coverage):       ΔAUROC = +0.032
+  12 common→1 matched (right allele): ΔAUROC = +0.040
+
+The original paper claim (ΔAUROC = 0.812 from 0.156→0.968) conflates
+allele matching with the full scorer's feature noise. The cleaner
+comparison:
+  Same scorer (MHCflurry), 3 alleles:     0.895
+  Same scorer (MHCflurry), 12 alleles:    0.927
+  Same scorer (MHCflurry), 1 matched:     0.967
+
+The improvement from allele matching alone is 0.072 (3→matched) or
+0.040 (12→matched). Still the single largest factor, but the 0.812
+swing included the scorer noise penalty.
+
+### Paper correction needed
+The 0.156→0.968 comparison used our full scorer (0.156) vs NeoRanking
+binding rank (0.968) — comparing different scorers AND different alleles.
+Fair comparison: MHCflurry with 3 alleles (0.895) vs MHCflurry with
+1 matched (0.967). ΔAUROC = 0.072 for allele matching alone.
+
+Still the single largest factor, but honestly reported.
