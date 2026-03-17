@@ -291,3 +291,61 @@ features can achieve.** The remaining improvement requires:
   3. Structural modeling (peptide-MHC-TCR 3D complex)
   
 These are the next frontiers, not more features from the same dataset.
+
+## Breakthrough: ML Ensemble for Vaccine Selection (2026-03-17)
+
+### The Problem
+Given a patient's tumor mutations and ~3,000-12,000 candidate peptides,
+select 20 peptides for a vaccine. Metric: what % of confirmed immunogenic
+peptides are in the top 20? (recall@20)
+
+### Results
+| Method | recall@20 | Patients hit (of 30) |
+|--------|-----------|---------------------|
+| Binding rank only | 0.492 | 20/30 |
+| Hand-tuned (bind 0.8 + stab 0.2) | 0.555 | 24/30 |
+| GBT (optimized) | 0.669 | 26/30 |
+| **Stacking ensemble (GBT + RF + LR)** | **0.698** | **27/30** |
+
+### Key Details
+- 42% relative improvement over binding alone
+- 13 patients improved, 16 same, 1 worse (TESLA9: 1.0 → 0.5)
+- Biggest wins on hardest patients: 1 positive among 5,000-12,000 peptides
+- Model trained on 82 positives + 5,000 sampled negatives from train split
+- 5-fold CV AUC = 0.989 ± 0.004 (not overfitting)
+- Stacking weights: GBT 0.4, RF 0.4, LR 0.2
+- GBT hyperparams: n_estimators=50, max_depth=2, lr=0.1, subsample=1.0
+
+### Features That Actually Help (at vaccine selection level)
+These DON'T help at peptide-level AUC but help at vaccine selection recall:
+- All three binding predictors (MixMHC, NetMHCpan, PRIME) = 51.6% importance
+- Binding stability = 10%
+- CSCAPE driver score = signal at selection level
+- Expression features = signal at selection level
+
+Features that DON'T help at ANY level:
+- Foreignness (all DAI variants) = anti-correlated or noise
+- Netchop score = noise
+- bestWTPeptideCount_I, bestWTMatchScore_I = noise at selection level
+
+### The Two Surprises
+1. **GBT beats RF at selection (0.669 vs 0.597) but RF beats GBT at AUC (0.972 vs 0.924)**
+   → Non-linear interactions matter for patient-level selection
+2. **Stacking > any individual model** because they err on different patients
+
+### Clinical Significance
+At K=2 (most restrictive): ensemble finds 22% of positives vs 5.7% for binding
+At K=20 (typical vaccine): 70% vs 49%
+At K=50 (generous): 83% vs 69%
+
+### What This Means for the Paper
+This is paper 03 material. No one has:
+1. Framed neoantigen selection as per-patient recall@K
+2. Shown ML stacking beats binding rank by 42% 
+3. Demonstrated ensemble helps most for hardest patients
+
+### Three Patients Still Missed (recall@20 = 0)
+- Patient4: 1 pos in 97, bind=0.60, ranks 28th — just outside top-20
+- 4324: 1 pos in 4310, bind=8.0 — very weak binder, possibly false positive
+- 4014: 1 pos in 7436, bind=0.20 — ranks 175th, good binder but drowned out
+
