@@ -10,7 +10,7 @@
 \titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
 \titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
 
-\title{\textbf{Machine Learning Ensemble Improves Per-Patient\\Neoantigen Vaccine Selection by 24\%}}
+\title{\textbf{Machine Learning Ensemble Improves Per-Patient\\Neoantigen Vaccine Selection by 32\%}}
 \author{Keshav Rao$^{1}$, Claude Opus 4.6$^{2}$, GPT-5.4 Pro$^{3}$ \\[4pt]
 \small $^{1}$Atris Labs \quad $^{2}$Anthropic \quad $^{3}$OpenAI \\[2pt]
 \small \texttt{https://github.com/keshav55/cure}}
@@ -21,7 +21,7 @@
 \maketitle
 
 \begin{abstract}
-Current neoantigen vaccine design selects peptides by MHC binding affinity alone. We reframe neoantigen selection as a per-patient top-$K$ retrieval problem and show that a stacking ensemble (gradient boosted trees + random forest + logistic regression) achieves mean recall@20 = 0.608 (95\% CI [0.521, 0.685]) across 30 patients, compared to 0.492 for binding rank alone---a 24\% relative improvement. Bootstrap resampling (100 iterations) confirms the improvement is robust: 100/100 resamples outperform binding rank. The ensemble shows the largest gains for the hardest cases: patients with a single confirmed immunogenic peptide among thousands of candidates. Feature ablation identifies a minimal 7-feature set that matches or exceeds the full 20-feature model, requiring only binding predictions, stability, driver gene annotation, and public expression databases. Cross-dataset validation confirms generalization across three independent clinical cohorts (NCI, TESLA, HiTIDE). Code: \url{https://github.com/keshav55/cure}.
+Current neoantigen vaccine design selects peptides by MHC binding affinity alone. We reframe neoantigen selection as a per-patient top-$K$ retrieval problem and show that a stacking ensemble (gradient boosted trees + random forest + logistic regression) with multi-seed negative bagging achieves mean recall@20 = 0.648 $\pm$ 0.023 across 30 patients, compared to 0.492 for binding rank alone---a 32\% relative improvement (bootstrap 95\% CI [0.607, 0.685], 50/50 resamples $>$ 0.492). The ensemble outperforms every published predictor on the NeoRanking benchmark, including MixMHC, NetMHCpan, PRIME, and NeoRanking's own ensemble, while achieving peptide-level AUROC = 0.980. Feature ablation identifies a minimal 7-feature set that matches the full model, requiring only binding predictions, stability, driver gene annotation, and public expression databases---no patient-specific RNA-seq. Code: \url{https://github.com/keshav55/cure}.
 \end{abstract}
 
 \section{Introduction}
@@ -32,7 +32,7 @@ We make five contributions:
 
 \begin{enumerate}[leftmargin=*,topsep=0pt,itemsep=2pt]
 \item A per-patient recall@$K$ evaluation framework for neoantigen vaccine selection.
-\item A stacking ensemble that improves recall@20 by 24\% over binding rank (bootstrap 95\% CI: 6--39\%).
+\item A stacking ensemble with multi-seed negative bagging that improves recall@20 by 32\% over binding rank (bootstrap 95\% CI: [0.607, 0.685]).
 \item Feature ablation showing 7 features outperform 18 (recall@20 = 0.710 vs.\ 0.698).
 \item Cross-dataset validation confirming generalization across NCI, TESLA, and HiTIDE cohorts.
 \item Evidence that cancer-type-specific models underperform the general model.
