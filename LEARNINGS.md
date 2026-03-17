@@ -992,3 +992,51 @@ Three configurations survive Bonferroni. All 9 survive BH FDR.
 2. "Safety net improves recall@20 by +0.107 (Bonferroni p = 0.021)"
 3. "All configurations significant after BH FDR correction"
 
+
+## MAJOR: Mutation-Level Prediction — Ensemble Shines (2026-03-17)
+
+### Mutation-level AUC
+| Method | AUC | Δ |
+|--------|-----|---|
+| Binding rank only | 0.708 | — |
+| **Mutation ensemble** | **0.872** | **+0.164** |
+
+This is 16x the improvement seen at peptide level (+0.010)!
+
+### Mutation-level feature importance
+| Feature | AUC | Note |
+|---------|-----|------|
+| TCGA expression | 0.773 | **#1 at mutation level** |
+| NetMHCpan binding | 0.770 | Close second |
+| log(expression) | 0.768 | Expression matters equally |
+| GTEx expression | 0.719 | Public database works |
+| MixMHC binding | 0.707 | |
+| Binding stability | 0.682 | |
+| CSCAPE driver | 0.617 | |
+| n_peptides | 0.243 | **ANTI-correlated** |
+| good_alleles | 0.384 | **ANTI-correlated** |
+
+### Per-patient mutation recall@K
+| K | Ensemble | Binding | Δ |
+|---|----------|---------|---|
+| 5 | 0.394 | 0.188 | **+0.206** |
+| 10 | **0.633** | 0.366 | **+0.266** |
+| 20 | 0.858 | 0.674 | +0.185 |
+
+### Why mutation level benefits MORE from ML
+At peptide level: binding alone = 0.968 AUC (near ceiling), little room to improve.
+At mutation level: binding alone = 0.708 AUC (gap to fill), expression/CSCAPE add ~0.07 each.
+The ensemble captures non-linear interactions between binding + expression + driver status.
+
+### Counterintuitive findings
+- **n_peptides anti-correlated**: more peptides per mutation = LESS immunogenic.
+  Possible: conserved protein regions generate more peptide variants but are tolerized.
+- **good_alleles anti-correlated**: binding to many alleles = less immunogenic.
+  Possible: broader HLA presentation = more likely to have been seen during thymic selection.
+
+### Significance
+This belongs in paper 03 or as a separate paper 04.
+The clinical recommendation changes: for MUTATION selection (which gene to target),
+the ML ensemble is essential (+0.164 AUC). For PEPTIDE selection (which specific
+peptide), the safety net gives a modest improvement (+0.107 recall@20).
+
