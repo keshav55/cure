@@ -227,21 +227,22 @@ At the peptide-level classification task (AUROC), logistic regression achieves 0
 
 \subsection{Safety Net Strategy}
 
-Pure ensemble use occasionally displaces well-ranked binding candidates. We propose a ``safety net'' approach: select top-10 peptides by binding rank (preserving safe, well-characterized candidates), then select 10 additional peptides by ensemble score not already in the binding set (adding diversity). In leave-one-patient-out evaluation (73 patients), the safety net achieves recall@20 = 0.636 (vs.\ 0.529 for binding, Wilcoxon $p$ = 0.002) while reducing patient-level regressions from 9 (pure ensemble) to 2.
+Pure ensemble use occasionally displaces well-ranked binding candidates. We propose a ``safety net'' approach: select top-10 peptides by binding rank (preserving safe, well-characterized candidates), then select 10 additional peptides by ensemble score not already in the binding set (adding diversity). In leave-one-patient-out evaluation (73 patients), the safety net achieves recall@20 = 0.636 (vs.\ 0.529 for binding, Wilcoxon $p$ = 0.002) while reducing patient-level regressions from 9 (pure ensemble) to 2. The effect strengthens at larger vaccine sizes: at $K$=30, the safety net achieves recall = 0.699 with Wilcoxon $p$ = 0.0001 and only 1 regression.
 
 \begin{table}[ht]
 \centering
 \footnotesize
-\begin{tabular}{@{}lrrr@{}}
+\begin{tabular}{@{}lrrrr@{}}
 \toprule
-Method & recall@20 & Worse & $p$ vs.\ binding \\
+$K$ & Safety net & Binding & Worse & $p$ \\
 \midrule
-Binding only & 0.529 & --- & --- \\
-Ensemble only & 0.604 & 9 & 0.067 \\
-\textbf{Safety net (10+10)} & \textbf{0.636} & \textbf{2} & \textbf{0.002} \\
+10 & 0.461 & 0.352 & 9 & 0.021 \\
+20 & 0.636 & 0.529 & 2 & 0.002 \\
+\textbf{30} & \textbf{0.699} & \textbf{0.568} & \textbf{1} & \textbf{0.0001} \\
+50 & 0.772 & 0.691 & 5 & 0.010 \\
 \bottomrule
 \end{tabular}
-\caption{LOPO evaluation (73 patients). The safety net combines binding's reliability with the ensemble's discovery of non-obvious candidates.}
+\caption{LOPO safety net evaluation (73 patients). Significant at all vaccine sizes. $K$=30 gives the strongest result ($p$ = 0.0001).}
 \end{table}
 
 \subsection{Bootstrap Stability}
