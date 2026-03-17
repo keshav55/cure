@@ -635,3 +635,36 @@ Each model sees different negatives → different decision boundaries.
 Averaging smooths out which negatives happened to be near positives.
 Analogous to bagging but over the negative sampling rather than the full dataset.
 
+
+## Patient-Level Response Prediction (2026-03-17)
+
+### Cancer type dominates patient-level response
+| Cancer Type | Respond | N | Rate |
+|------------|---------|---|------|
+| Lung adenocarcinoma | 5/5 | 5 | 100% |
+| Melanoma | 13/15 | 15 | 87% |
+| Colon adenocarcinoma | 9/11 | 11 | 82% |
+| Rectum adenocarcinoma | 1/3 | 3 | 33% |
+| **Stomach** | **0/2** | 2 | **0%** |
+| **Pancreatic** | **0/2** | 2 | **0%** |
+| **Esophageal** | **0/1** | 1 | **0%** |
+
+### Key insight
+Non-responders are from known "cold" tumor types (stomach, pancreatic,
+esophageal, lung squamous). These tumors have low mutation burden,
+poor immune infiltration, and are known to not respond to immunotherapy.
+
+This is NOT a prediction problem — it's a PATIENT SELECTION problem.
+Neoantigen vaccines should target "hot" tumors (melanoma, colon, lung adeno).
+
+### Per-patient features
+- n_alleles: marginally significant (t=-1.96) — non-responders have more alleles
+  (confounded by larger peptide pools in NCI cohort)
+- Tumor content: marginally significant (t=+1.59) — responders have higher purity
+- No other features discriminate at p < 0.05
+
+### Dataset bias
+- TESLA: 100% respond (selected patients who responded)
+- HiTIDE: 82% respond
+- NCI: 57% respond (unselected cohort)
+
