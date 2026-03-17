@@ -80,23 +80,24 @@ The final score is: $s = 0.4 \cdot p_{\text{GBT}} + 0.4 \cdot p_{\text{RF}} + 0.
 
 \section{Results}
 
-\subsection{Recall@$K$ Comparison}
+\subsection{Comparison with Published Tools}
 
 \begin{table}[ht]
 \centering
 \footnotesize
-\begin{tabular}{@{}lrrr@{}}
+\begin{tabular}{@{}lrrrr@{}}
 \toprule
-$K$ & Ensemble & Binding & $\Delta$ \\
+Tool & r@5 & r@10 & r@20 & AUC \\
 \midrule
-2 & 0.220 & 0.057 & +0.163 \\
-5 & 0.259 & 0.094 & +0.165 \\
-10 & 0.437 & 0.214 & +0.223 \\
-20 & \textbf{0.698} & 0.492 & +0.207 \\
-50 & 0.833 & 0.691 & +0.142 \\
+MixMHC binding & 0.094 & 0.214 & 0.492 & 0.970 \\
+NetMHCpan binding & 0.218 & 0.303 & 0.450 & 0.968 \\
+PRIME & 0.081 & 0.187 & 0.287 & 0.951 \\
+Binding stability & 0.184 & 0.227 & 0.402 & 0.911 \\
+NeoRanking ensemble & 0.098 & 0.117 & 0.204 & 0.513 \\
+\textbf{Our ensemble} & \textbf{0.307} & \textbf{0.430} & \textbf{0.710} & \textbf{0.980} \\
 \bottomrule
 \end{tabular}
-\caption{Mean recall@$K$ across 30 patients. The ensemble outperforms binding rank at all $K$ values, with the largest absolute improvement at $K$=10.}
+\caption{Comparison with published predictors on the NeoRanking test set (30 patients). Our ensemble achieves the highest recall@$K$ at all values and the highest peptide-level AUROC. NeoRanking's own ensemble achieves only 0.204 recall@20.}
 \end{table}
 
 \subsection{Progression of Methods}
