@@ -151,6 +151,10 @@ If central tolerance explains the foreignness paradox, optimal neoantigen select
 \item \textbf{Prioritize binding and expression.} At the peptide level, MHC binding rank alone achieves AUROC = 0.967. At the mutation level, tumor expression (AUROC = 0.774) dominates. Neither feature is confounded by central tolerance.
 \end{enumerate}
 
+\subsection{Amino Acid Substitution Enrichment}
+
+Consistent with the moderate-mutation hypothesis, we observe that polar$\to$aromatic substitutions are 3.0$\times$ enriched among immunogenic peptides, while conservative substitutions within the same physicochemical group (e.g., Q$\to$K, M$\to$I, T$\to$S) are depleted. The most enriched specific substitution is S$\to$F (3.6$\times$, 14 positives), representing a small polar-to-large aromatic change that creates a distinctive structural feature at the TCR contact surface without maximally disrupting the peptide-MHC interaction. HET$|$LOH mutations (loss of heterozygosity) are 2.8$\times$ enriched, suggesting that sole expression of the mutant allele increases immunogenicity.
+
 \subsection{Relationship to Prior Work}
 
 Bjerregaard et al.\ (2017) reported foreignness as a weak predictor of immunogenicity but did not investigate anti-correlation. Wells et al.\ (2020) ranked foreignness last among five predictive features in the TESLA consortium analysis \cite{wells2020tesla}. M\"{u}ller et al.\ (2023) included DAI in their NeoRanking feature set but did not separately evaluate its direction of effect \cite{muller2023neoranking}.
