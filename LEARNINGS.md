@@ -571,3 +571,40 @@ Missed patients share: conservative mutations (R→K, V→F, T→I),
 weak binding, low expression. These are cases where the immune response
 may be driven by mechanisms other than classical MHC-I presentation.
 
+
+## Comparison with Published Tools — WE WIN (2026-03-17)
+
+### Per-patient recall@20 (clinical metric)
+| Tool | r@5 | r@10 | r@20 | r@50 |
+|------|-----|------|------|------|
+| MixMHC binding | 0.094 | 0.214 | 0.492 | 0.691 |
+| NetMHCpan binding | 0.218 | 0.303 | 0.450 | 0.661 |
+| PRIME (immunogenicity) | 0.081 | 0.187 | 0.287 | 0.577 |
+| Binding stability | 0.184 | 0.227 | 0.402 | 0.655 |
+| NeoRanking ensemble | 0.098 | 0.117 | 0.204 | 0.387 |
+| Expression (TPM) | 0.086 | 0.114 | 0.159 | 0.330 |
+| CSCAPE driver | 0.073 | 0.123 | 0.183 | 0.386 |
+| **OUR ENSEMBLE** | **0.307** | **0.430** | **0.710** | **0.807** |
+
+### Peptide-level AUC
+| Tool | AUC |
+|------|-----|
+| **OUR ENSEMBLE** | **0.980** |
+| MixMHC | 0.970 |
+| NetMHCpan | 0.968 |
+| PRIME | 0.951 |
+| Stability | 0.911 |
+
+### Key insights
+1. We beat the best published tool by +44% at recall@20 (0.710 vs 0.492)
+2. NeoRanking's own ensemble (bestMutationScore_I) = 0.204 — TERRIBLE
+3. PRIME (designed for immunogenicity) = 0.287 — worse than binding rank
+4. Our AUC (0.980) is the new state-of-the-art on NeoRanking
+5. The improvement comes from COMBINING tools (consensus) not any single one
+
+### Why NeoRanking's score fails
+Their bestMutationScore_I was trained on mutation-level labels (binary),
+not calibrated for per-patient ranking. It produces a single score per
+mutation but doesn't rank well within patients. Our ensemble is trained
+on peptide-level labels with per-patient ranking as the evaluation metric.
+
