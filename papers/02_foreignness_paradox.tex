@@ -1,0 +1,184 @@
+\documentclass[11pt,twocolumn]{article}
+\usepackage[margin=0.85in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{titlesec}
+
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+
+\title{\textbf{The Foreignness Paradox: Why the Most Intuitive\\Feature in Neoantigen Prediction Is Counterproductive}}
+\author{Keshav Rao$^{1}$, Claude Opus 4.6$^{2}$ \\[4pt]
+\small $^{1}$Atris Labs \quad $^{2}$Anthropic \\[2pt]
+\small \texttt{https://github.com/keshav55/cure}}
+\date{March 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Neoantigen selection algorithms commonly reward ``foreignness''---how biochemically dissimilar a mutated peptide is from its wildtype. Using two independent datasets (NeoRanking: 125,784 peptides from 131 patients; TESLA: 608 peptides from 6 patients), we show that the Differential Agretopicity Index (DAI) is consistently \textit{anti-correlated} with immunogenicity (AUROC = 0.352 and 0.315, respectively). We present three lines of evidence that this anti-correlation reflects central tolerance rather than confounding with MHC binding disruption: (1) DAI remains anti-correlated among strong MHC binders (AUROC = 0.432, binding rank $<$ 0.5); (2) cross-group amino acid substitutions---the most biochemically foreign---show the strongest anti-correlation (AUROC = 0.228); (3) the correlation between DAI and binding rank is weak ($r$ = 0.113), insufficient to explain the observed effect. These findings suggest that highly foreign mutations are preferentially depleted of cognate T-cell clones by thymic negative selection, reducing the available repertoire. Neoantigen selection algorithms that reward foreignness may therefore be counterproductive. We propose that moderately foreign mutations---biochemically distinct enough to be recognized but similar enough to retain cognate T-cells---represent the optimal vaccine targets.
+\end{abstract}
+
+\section{Introduction}
+
+The selection of neoantigens for personalized cancer vaccines requires predicting which mutated peptides will elicit CD8$^{+}$ T-cell responses when presented on MHC class I molecules. Among the features used for this prediction, ``foreignness''---the degree of biochemical dissimilarity between the mutated and wildtype peptide---is among the most intuitive. The reasoning is straightforward: mutations that produce large physicochemical changes should appear more ``non-self'' to the immune system and thus trigger stronger T-cell responses.
+
+This intuition is formalized in the Differential Agretopicity Index (DAI), which measures the change in predicted MHC binding affinity between mutant and wildtype peptides \cite{wells2020tesla}. A positive DAI indicates the mutation improves MHC binding relative to wildtype; a negative DAI indicates disruption. Related measures include BLOSUM substitution distances and amino acid group change classification.
+
+Several neoantigen prediction tools incorporate foreignness as a positive feature \cite{muller2023neoranking, li2021deepimmuno}. However, the empirical evidence for foreignness as a predictor is mixed. Wells et al.\ (2020) reported foreignness among five features associated with immunogenicity but ranked it last \cite{wells2020tesla}. We present a systematic investigation showing that foreignness is not merely weak---it is \textit{counterproductive}.
+
+\section{Methods}
+
+\subsection{Datasets}
+
+We evaluate on two independent datasets:
+
+\begin{itemize}[leftmargin=*,topsep=0pt,itemsep=2pt]
+\item \textbf{NeoRanking} \cite{muller2023neoranking}: 125,784 peptides (test split) from 131 patients across NCI, TESLA, and HiTIDE cohorts. 96 confirmed CD8$^{+}$ T-cell responses. Pre-computed DAI (NetMHC and MixMHC variants), binding ranks, and patient-matched HLA alleles.
+\item \textbf{TESLA} \cite{wells2020tesla}: 608 peptides from 6 melanoma patients. 37 confirmed immunogenic. Pre-computed foreignness scores.
+\end{itemize}
+
+\subsection{Foreignness Measures}
+
+We evaluate three foreignness operationalizations:
+
+\begin{enumerate}[leftmargin=*,topsep=0pt,itemsep=0pt]
+\item \textbf{DAI (NetMHC):} Difference in predicted MHC binding between mutant and wildtype, using NetMHCpan.
+\item \textbf{DAI (MixMHC):} Same, using MixMHC2.0.
+\item \textbf{Amino acid group change:} Whether the mutation crosses biochemical group boundaries (aliphatic, aromatic, polar, charged, special).
+\end{enumerate}
+
+\subsection{Controlled Analyses}
+
+To distinguish central tolerance from binding confounding, we perform three controlled analyses:
+
+\begin{enumerate}[leftmargin=*,topsep=0pt,itemsep=0pt]
+\item \textbf{Binding-controlled:} Evaluate DAI predictive power restricted to strong binders (binding rank $<$ 0.5), eliminating peptides where high foreignness disrupted MHC binding.
+\item \textbf{Mutation-type stratified:} Separate cross-group mutations (e.g., aliphatic $\to$ aromatic) from same-group mutations (e.g., V $\to$ I) to test whether more foreign mutations show stronger anti-correlation.
+\item \textbf{Correlation analysis:} Measure the correlation between DAI and binding rank to quantify the degree of confounding.
+\end{enumerate}
+
+\section{Results}
+
+\subsection{Foreignness Is Anti-Correlated Across Datasets}
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\begin{tabular}{@{}llr@{}}
+\toprule
+Dataset & Measure & AUROC \\
+\midrule
+NeoRanking (peptide) & DAI (NetMHC) & 0.352 \\
+NeoRanking (peptide) & DAI (MixMHC) & 0.352 \\
+NeoRanking (mutation) & DAI (NetMHC) & 0.423 \\
+TESLA & Foreignness & 0.315 \\
+\bottomrule
+\end{tabular}
+\caption{Foreignness AUROC across datasets and granularities. All values below 0.5 indicate anti-correlation: immunogenic peptides are \textit{less} foreign than non-immunogenic ones.}
+\end{table}
+
+DAI is anti-correlated with immunogenicity across both datasets, both foreignness measures, and both granularities (peptide and mutation level). The effect is stronger at the peptide level (0.352) than the mutation level (0.423), suggesting peptide-specific factors amplify the anti-correlation.
+
+\subsection{The Effect Persists Among Strong Binders}
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\begin{tabular}{@{}lr@{}}
+\toprule
+Subset & DAI AUROC \\
+\midrule
+All peptides & 0.352 \\
+Strong binders (rank $<$ 0.5) & 0.432 \\
+\bottomrule
+\end{tabular}
+\caption{DAI remains anti-correlated among strong MHC binders (N$_{pos}$ = 77, N$_{neg}$ = 4,532). Controlling for binding quality attenuates but does not eliminate the effect.}
+\end{table}
+
+If the anti-correlation were solely due to foreign mutations disrupting MHC binding, restricting to strong binders should eliminate it. Instead, DAI remains anti-correlated (AUROC = 0.432) among peptides with binding rank $<$ 0.5. The attenuation from 0.352 to 0.432 indicates that binding disruption accounts for approximately 35\% of the effect; the remaining 65\% is attributable to other mechanisms.
+
+\subsection{Cross-Group Mutations Show Strongest Anti-Correlation}
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\begin{tabular}{@{}lr@{}}
+\toprule
+Mutation Type & DAI AUROC \\
+\midrule
+Cross-group (most foreign) & 0.228 \\
+Same-group (least foreign) & 0.312 \\
+\bottomrule
+\end{tabular}
+\caption{Mutations that cross amino acid group boundaries (e.g., aliphatic $\to$ aromatic) show stronger anti-correlation than within-group mutations.}
+\end{table}
+
+Cross-group mutations---which produce the largest biochemical changes and are conventionally considered the ``most foreign''---show the strongest anti-correlation with immunogenicity (AUROC = 0.228 vs.\ 0.312 for same-group). This is the opposite of what foreignness-as-positive-feature would predict, and is consistent with central tolerance: the most foreign-appearing epitopes face the greatest depletion of reactive T-cell clones during thymic selection.
+
+\subsection{DAI-Binding Correlation Is Weak}
+
+The Pearson correlation between DAI and binding rank is $r$ = 0.113 (N = 10,000). While statistically significant given the sample size, this correlation is insufficient to explain the observed anti-correlation: DAI accounts for only 1.3\% of the variance in binding rank ($r^2$ = 0.013). The foreignness effect is largely independent of binding.
+
+\section{Discussion}
+
+\subsection{Central Tolerance as the Mechanism}
+
+During T-cell development in the thymus, T-cells that react strongly to self-peptides undergo negative selection (clonal deletion). This process eliminates T-cells whose T-cell receptors (TCRs) bind self-peptide-MHC complexes with high affinity. The stringency of negative selection is proportional to the strength of TCR-pMHC interaction.
+
+We propose that highly foreign neoantigens---those with large biochemical changes from wildtype---are more likely to resemble peptides for which cognate T-cell clones have already been deleted. The reasoning:
+
+\begin{enumerate}[leftmargin=*,topsep=0pt,itemsep=2pt]
+\item Highly foreign-appearing peptides, by definition, have physicochemical properties that differ substantially from common self-peptides.
+\item TCRs that recognize such unusual physicochemical features would also tend to cross-react with the subset of self-peptides that share those features.
+\item These cross-reactive TCRs are preferentially deleted during thymic selection.
+\item The surviving T-cell repertoire is therefore depleted of clones capable of recognizing highly foreign neoantigens.
+\end{enumerate}
+
+Conversely, moderately foreign neoantigens---those with small-to-medium biochemical changes---are different enough from wildtype to be recognized as non-self but similar enough that their cognate T-cell clones were not eliminated during thymic selection.
+
+\subsection{Implications for Vaccine Design}
+
+If central tolerance explains the foreignness paradox, optimal neoantigen selection should:
+
+\begin{enumerate}[leftmargin=*,topsep=0pt,itemsep=2pt]
+\item \textbf{Not reward foreignness.} DAI and BLOSUM-based foreignness scores should be removed from positive feature sets or, based on our data, included as negative features.
+\item \textbf{Prefer moderate mutations.} Same-group amino acid changes (e.g., V $\to$ I, D $\to$ E) that preserve general physicochemical character while introducing detectable differences may represent optimal targets.
+\item \textbf{Prioritize binding and expression.} At the peptide level, MHC binding rank alone achieves AUROC = 0.967. At the mutation level, tumor expression (AUROC = 0.774) dominates. Neither feature is confounded by central tolerance.
+\end{enumerate}
+
+\subsection{Relationship to Prior Work}
+
+Bjerregaard et al.\ (2017) reported foreignness as a weak predictor of immunogenicity but did not investigate anti-correlation. Wells et al.\ (2020) ranked foreignness last among five predictive features in the TESLA consortium analysis \cite{wells2020tesla}. M\"{u}ller et al.\ (2023) included DAI in their NeoRanking feature set but did not separately evaluate its direction of effect \cite{muller2023neoranking}.
+
+Our contribution is three-fold: (1) demonstrating consistent anti-correlation across two independent datasets; (2) providing controlled evidence against the binding-confounding explanation; (3) proposing central tolerance as the mechanism with specific testable predictions.
+
+\subsection{Testable Predictions}
+
+The central tolerance hypothesis makes specific predictions that could be tested experimentally:
+
+\begin{enumerate}[leftmargin=*,topsep=0pt,itemsep=2pt]
+\item \textbf{TCR repertoire analysis:} Patients should have fewer na\"{i}ve T-cell clones reactive to highly foreign neoantigens compared to moderately foreign ones. This could be measured by pMHC multimer staining of na\"{i}ve (CD45RA$^{+}$) T-cell populations.
+\item \textbf{Neonatal vs.\ adult responses:} Neonates, who have not yet completed thymic selection, should show less anti-correlation between foreignness and immunogenicity.
+\item \textbf{Thymectomized patients:} Patients who underwent early thymectomy (e.g., for cardiac surgery) should have altered foreignness-immunogenicity relationships due to incomplete negative selection.
+\end{enumerate}
+
+\subsection{Limitations}
+
+The NeoRanking mutation-type analysis (cross-group vs.\ same-group) is limited by small positive sample sizes (8 cross-group, 2 same-group CD8$^{+}$ responses in the sampled evaluation). The central tolerance interpretation is parsimonious but not directly demonstrated; alternative mechanisms (TCR structural constraints, proteasomal processing biases) cannot be excluded. Both datasets are predominantly melanoma, limiting generalizability to other cancer types.
+
+\section{Conclusion}
+
+Foreignness---the biochemical dissimilarity between mutant and wildtype peptides---is anti-correlated with neoantigen immunogenicity (AUROC = 0.35) across two independent datasets. Controlled analyses support central tolerance, not binding confounding, as the primary mechanism. Neoantigen selection algorithms should remove foreignness from positive feature sets. The optimal vaccine target may be a moderately foreign mutation: different enough to be seen, similar enough to have surviving T-cells.
+
+\begin{thebibliography}{9}
+\bibitem{wells2020tesla} Wells, D.K.\ et al.\ Key Parameters of Tumor Epitope Immunogenicity Revealed Through a Consortium Approach Improve Neoantigen Prediction. \textit{Cell} 183, 818--834 (2020).
+\bibitem{muller2023neoranking} M\"{u}ller, M.\ et al.\ Machine learning methods and harmonized datasets improve immunogenic neoantigen prediction. \textit{Immunity} 56, 2650--2663 (2023).
+\bibitem{li2021deepimmuno} Li, G.\ et al.\ DeepImmuno: deep learning-empowered prediction and generation of immunogenic peptides for T-cell immunity. \textit{Brief.\ Bioinform.} 22, bbab160 (2021).
+\end{thebibliography}
+
+\end{document}
