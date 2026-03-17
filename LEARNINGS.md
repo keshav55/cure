@@ -263,3 +263,31 @@ The pipeline should rank at BOTH levels:
   1. Filter mutations by expression (top 50%)
   2. For each mutation, rank peptides by binding
   3. Select top peptide per top mutation
+
+## Experiment: What Else Can Improve the System? (2026-03-17)
+
+### Peptide level: at ceiling
+Full antigen presentation pathway (binding + TAP + cleavage + stability + expression):
+  AUC = 0.970 vs binding alone = 0.968 (+0.002)
+  TAP and cleavage add nothing beyond binding. Binding subsumes them.
+  **Peptide-level prediction is solved. No room for improvement.**
+
+### Mutation level: marginal gains possible
+  Without driver score:    0.822
+  With CSCAPE driver:      0.826 (+0.004)
+  Without binding:         0.820 (-0.002)
+  LR found binding NEGATIVE but hand-tuned says minimal positive.
+
+### Logistic regression vs hand-tuned
+  LR: 0.812 (learned: expr=2.93, n_alleles=2.87, binding=-0.39)
+  Hand-tuned: 0.822
+  LR underperforms by 0.010 — small training set (107 positives) limits learning.
+
+### Key insight
+**We are at the ceiling of what single-peptide/single-mutation
+features can achieve.** The remaining improvement requires:
+  1. Multi-epitope optimization (which COMBINATION of peptides?)
+  2. Patient-level features (TMB, immune infiltration, prior treatment)
+  3. Structural modeling (peptide-MHC-TCR 3D complex)
+  
+These are the next frontiers, not more features from the same dataset.
