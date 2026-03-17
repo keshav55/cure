@@ -501,3 +501,40 @@ validated CD8+ responses from new clinical trials.
 - GBT 0.4 + RF 0.4 + LR 0.2
 - recall@20 = 0.710
 
+
+## Bootstrap Confidence Intervals (2026-03-17)
+
+### CORRECTION: Point estimate was optimistic
+| Metric | Value |
+|--------|-------|
+| Point estimate (seed=42) | 0.710 |
+| Bootstrap mean (100 resamples) | **0.608** |
+| Bootstrap std | 0.040 |
+| 95% CI | [0.521, 0.685] |
+| Min | 0.504 |
+| Max | 0.705 |
+
+### Honest improvement over binding
+The improvement is +0.116 (0.608 vs 0.492) = **+24%**, not +42%.
+The +42% claim was based on a lucky negative sample (seed=42).
+
+100/100 bootstraps beat binding (0.492) → improvement is REAL
+90/100 beat hand-tuned (0.555) → ML adds genuine value
+But the effect size is smaller than initially reported.
+
+### Negative sampling volatility
+Different 5000-sample draws from the negative pool swing recall by ±0.08.
+This means the SPECIFIC negatives used for training matter as much as
+the model configuration. The model sees 82 positives and 5000 negatives —
+which 5000 (out of 297K) determines the decision boundary.
+
+### Patient-level stability
+- 22/30 patients: ≥90% hit rate across bootstraps (stable)
+- 3 patients: unreliable (3881 46%, Patient7 27%, 4014 1%)
+- 2 patients: always missed (Patient4, 4324)
+- The stable patients are where we'd confidently recommend peptides
+
+### Paper correction needed
+Replace "42% improvement" with "24% improvement (95% CI: 6-39%)"
+Add bootstrap CI to all recall@20 claims.
+
