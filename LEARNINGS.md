@@ -1079,3 +1079,37 @@ For vaccine design, the optimal pipeline is:
 2. **Peptide selection per mutation**: binding rank → pick best peptide
 3. **Safety net**: also include top-5 binding-only peptides as backup
 
+
+## DEFINITIVE: All Approaches Compared (LOPO, 73 patients) (2026-03-17)
+
+### K=20 peptide recall — the clinical metric
+| Approach | recall@20 | Δ vs Bind | p-value | Significant? |
+|----------|-----------|-----------|---------|-------------|
+| Binding only | 0.529 | — | — | — |
+| Two-level (mut→pep) | 0.576 | +0.047 | 0.206 | No |
+| Peptide ensemble | 0.595 | +0.065 | 0.091 | No |
+| **Safety net (10+10)** | **0.636** | **+0.107** | **0.002** | **Yes** |
+
+### Two-level pipeline LOPO (mutation recall)
+| K mutations | Two-level | Binding | Δ | p |
+|------------|-----------|---------|---|---|
+| 10 | 0.436 | 0.333 | +0.103 | 0.020 * |
+| 15 | 0.508 | 0.415 | +0.092 | 0.022 * |
+| 20 | 0.576 | 0.487 | +0.090 | 0.012 * |
+
+### Key conclusion
+**The safety net is the ONLY approach that reaches statistical significance
+at the peptide recall@20 level in LOPO.**
+
+The two-level pipeline helps at mutation level (p=0.012-0.022) but when
+evaluated on peptide recall@20, it doesn't beat the safety net because:
+1. 1 peptide per mutation wastes budget (many mutations generate multiple good peptides)
+2. The safety net's binding floor preserves easy wins the two-level misses
+
+### Final clinical recommendation
+For a 20-peptide vaccine:
+→ **Safety net**: 10 peptides by binding + 10 by ML ensemble (p=0.002)
+
+For mutation prioritization (which genes to target):
+→ **ML ensemble**: expression + binding + CSCAPE (AUC 0.872 vs 0.708)
+
