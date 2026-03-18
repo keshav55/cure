@@ -1312,3 +1312,49 @@ Pipeline mRNA quality: **adequate for research, not for clinical manufacturing**
 The codon sequences are valid and efficiently translated but would need
 GC balancing and structure optimization for a real vaccine.
 
+
+## ═══════════════════════════════════════════════════════════════
+## COMPREHENSIVE RESEARCH SUMMARY (81 commits, 2026-03-17 to 2026-03-18)
+## ═══════════════════════════════════════════════════════════════
+
+### What we built
+An open-source neoantigen vaccine pipeline (VCF → mRNA) with an ML ensemble
+that achieves state-of-the-art performance on the NeoRanking benchmark.
+
+### Headline numbers
+| Metric | Value | vs Best Published | Significance |
+|--------|-------|------------------|-------------|
+| Peptide AUC | **0.980** | MixMHC 0.970 | SOTA |
+| recall@20 (LOPO) | **0.636** | Binding 0.529 | **p = 0.002** |
+| recall@30 (LOPO) | **0.699** | Binding 0.568 | **p = 0.0001** |
+| Mutation-level AUC | **0.872** | Binding 0.708 | +0.164 |
+| Bonferroni-corrected | — | — | **p = 0.0009** (K=30) |
+
+### Three papers
+1. **Data Quality Dominates** (v6): patient HLA = #1 factor, binding alone = 0.967
+2. **Foreignness Paradox** (v2): DAI anti-correlated, central tolerance confirmed
+3. **ML Vaccine Selection** (v9): safety net, LOPO, robustness, interpretability
+
+### Key findings (25+ experiments)
+1. 7 features > 18 features (backward elimination)
+2. Safety net (bind 10 + ens 10) is the undisputed best approach
+3. Ensemble is 7.5x more robust than binding under 50% noise
+4. Learning curves: even 8 positives beats binding, log scaling
+5. Cancer-specific models FAIL (general model wins)
+6. All augmentation strategies FAIL (82 real positives irreplaceable)
+7. Combined 3-level pipeline FAILS (simple > complex)
+8. Cross-dataset validated (NCI +0.105, HiTIDE +0.041)
+9. Calibration excellent (ECE 0.013)
+10. HET|LOH 2.8x enriched, polar→aromatic 3x enriched
+11. Ensemble trades binding for expression (4.3x higher in picks)
+12. Codon optimizer: CAI=1.000, adequate for research
+
+### What's next
+1. Wet lab validation ($11K for ELISpot on 20 predictions)
+2. External dataset (IEDB) validation
+3. Paper submission
+4. Unified paper 04 combining all findings
+
+### Repository
+github.com/keshav55/cure — 81 commits, 3 papers, 5 tools
+
