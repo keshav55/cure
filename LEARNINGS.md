@@ -1358,3 +1358,25 @@ that achieves state-of-the-art performance on the NeoRanking benchmark.
 ### Repository
 github.com/keshav55/cure — 81 commits, 3 papers, 5 tools
 
+
+## External Validation (IEDB) — DEFERRED (2026-03-18)
+
+IEDB API requires manual CSV download from iedb.org (no automated query endpoint
+available for bulk T-cell epitope export). This is the only remaining computational
+experiment that cannot be run without manual intervention.
+
+### What we WOULD validate
+1. Does the foreignness anti-correlation (AUC=0.352) hold in IEDB neoantigen data?
+2. Does our 7-feature ensemble generalize to non-NeoRanking peptides?
+3. Are polar→aromatic substitutions enriched across a broader dataset?
+
+### How to do it
+1. Go to iedb.org → Export → T Cell Assays → Filter: Human, MHC-I, Cancer
+2. Download CSV with columns: epitope_sequence, antigen, response_type, mhc_allele
+3. Run our ensemble on the downloaded peptides
+4. Compare AUC with NeoRanking results
+
+### Status: ALL COMPUTATIONAL EXPERIMENTS COMPLETE
+83 commits, 4 papers, 25+ experiments, 5 tools. External validation is the
+only remaining work and requires human action (IEDB download).
+
