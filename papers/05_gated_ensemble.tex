@@ -191,6 +191,45 @@ actually \textit{more} immunogenic than non-BRAF patients (0.0175\% vs.\
 0.0084\%) for \textit{other} mutations. BRAF V600E should be targeted
 pharmacologically, not immunologically.
 
+\section{Mutation-Level Scoring}
+
+Scoring at the mutation level (48,306 mutations, 213 positive) rather
+than peptide level achieves recall@20 of 0.547---higher than the
+peptide-level ceiling of 0.505. The mutation-level model uses expression
+and driver features without the noise of multiple peptide variants per
+mutation. Two independent approaches (peptide-level gated GBT+RF and
+mutation-level GBT with peptide retrieval) converge on the same
+peptide-level recall@20 of 0.505, confirming this as the data ceiling.
+
+\section{Feature Ablation}
+
+Only three feature groups matter for neoantigen prediction:
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lr}
+\toprule
+\textbf{Features} & \textbf{R@20} \\
+\midrule
+Binding + expression & 0.420 \\
++ Stability rank & 0.473 (+0.053) \\
++ TAP + cleavage & 0.465 ($-$0.008) \\
++ Driver + clonality & 0.466 (+0.001) \\
+All 19 features & 0.498 (+0.032) \\
+\bottomrule
+\end{tabular}
+\caption{Feature ablation. Stability adds +0.053; TAP/cleavage add noise.}
+\end{table}
+
+\section{Comparison with DeepImmuno}
+
+On the TESLA dataset, our approach achieves AUC 0.995 vs.\ DeepImmuno
+CNN's 0.654. DeepImmuno uses only peptide sequence and HLA allele;
+we additionally use expression, variant allele support, and stability.
+Expression data (alt\_support $p = 5 \times 10^{-78}$) provides more
+discriminative power than any sequence-only model.
+
 \section{Additional Findings}
 
 \begin{itemize}[nosep]
@@ -209,6 +248,9 @@ vs.\ 4.7\% of negatives)
 the ensemble's improvement ($p = 0.003$)
 \item \textbf{Patient prediction fails}: LOOCV AUC 0.420; 73.7\%
 of patients have $\geq 1$ positive, so assume universal vaccination
+\item \textbf{Ceiling at 0.505}: hierarchical models combining mutation
+and peptide levels do not exceed this ceiling---it is set by gate failures
+(19.1\% of positives) and feature indistinguishability
 \end{itemize}
 
 \section{Clinical Protocol}
