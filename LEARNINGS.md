@@ -1113,3 +1113,37 @@ For a 20-peptide vaccine:
 For mutation prioritization (which genes to target):
 → **ML ensemble**: expression + binding + CSCAPE (AUC 0.872 vs 0.708)
 
+
+## Learning Curves (2026-03-18)
+
+### Performance vs training data size
+| N positives | Fraction | recall@20 | AUC |
+|------------|----------|-----------|-----|
+| 8 | 10% | 0.504±0.025 | 0.973 |
+| 16 | 20% | 0.550±0.038 | 0.977 |
+| 24 | 30% | 0.606±0.026 | 0.978 |
+| 41 | 50% | 0.590±0.034 | 0.980 |
+| 82 | 100% | 0.619±0.015 | 0.981 |
+
+### Extrapolation (logarithmic fit)
+recall@20 = 0.033 * ln(N) + 0.462 (R² = 0.373)
+
+| N positives | Predicted recall@20 |
+|------------|-------------------|
+| 82 (current) | 0.607 |
+| 200 | 0.636 |
+| 500 | 0.666 |
+| 1000 | 0.689 |
+
+### Key insights
+1. **Even 8 positives beats binding** (0.504 vs 0.492) — ensemble adds value immediately
+2. **Diminishing returns**: 82→200 gains only +0.029. 82→1000 gains +0.045
+3. **AUC near ceiling at 0.981** — more data helps recall, not classification
+4. **The bottleneck is real but not as severe as expected**
+5. To reach 0.70 recall@20, we'd need ~1300 positives (16x current)
+
+### Implication for data collection
+Adding 100 more patients would gain ~0.02 recall. The most impactful next step
+isn't more data from the same distribution — it's new features (structural,
+TCR repertoire) or new evaluation paradigms (patient-level outcomes).
+
