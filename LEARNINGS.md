@@ -1277,3 +1277,38 @@ The mRNA design module produces valid codon-optimized sequences.
 
 Pipeline status: ✓ WORKING END-TO-END
 
+
+## Codon Optimizer Validation (2026-03-18)
+
+### Quality metrics across 7 test peptides
+| Metric | Our optimizer | Random | Worst | BNT162b2 |
+|--------|-------------|--------|-------|---------|
+| CAI | **1.000** | 0.694 | 0.437 | ~0.96 |
+| GC% | 63.7% | 47.2% | 40.7% | 57% |
+| CpG/peptide | 1.0 | — | — | minimized |
+| Rare codons | 0 | — | 5 | 0 |
+
+### Assessment
+- **CAI = 1.000**: greedy-optimal (every codon is most frequent for its AA)
+- **GC% slightly high**: 63.7% vs ideal 45-65%. KRAS G12V at 77.8% (problematic)
+- **CpG low**: 1.0 per peptide on average (good for mRNA stability)
+- **No rare codons**: ✓
+
+### Limitation
+The optimizer is GREEDY — picks the single best codon for each AA independently.
+Real vaccine mRNA design uses beam search or simulated annealing to balance:
+1. CAI (translation efficiency)
+2. GC content (45-65% for stability)
+3. CpG depletion (avoid innate immune activation)
+4. mRNA secondary structure (avoid strong hairpins)
+5. Codon pair bias (adjacent codon compatibility)
+
+Our greedy approach achieves perfect CAI but doesn't optimize the other objectives.
+For a research pipeline this is acceptable; for clinical mRNA this would need
+multi-objective optimization.
+
+### Verdict
+Pipeline mRNA quality: **adequate for research, not for clinical manufacturing**.
+The codon sequences are valid and efficiently translated but would need
+GC balancing and structure optimization for a real vaccine.
+
