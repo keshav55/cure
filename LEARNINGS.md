@@ -1212,3 +1212,40 @@ The ensemble maintains performance under this noise level (±0.1%).
 Binding-only approaches are more fragile — a switch between binding
 predictors (e.g., NetMHCpan vs MixMHC) could change rankings substantially.
 
+
+## Interpretability: Why the Ensemble Selects Different Peptides (2026-03-18)
+
+### Global feature contributions (drop-to-mean analysis)
+| Feature | Mean |Δp| | Direction |
+|---------|----------|-----------|
+| MixMHC binding | 0.0051 | ↑ helps positives |
+| NetMHCpan binding | 0.0047 | ↑ helps positives |
+| 1/binding rank | 0.0044 | ↑ helps positives |
+| PRIME binding | 0.0041 | ↑ helps positives |
+| log(TPM) expression | 0.0020 | ↑ helps positives |
+| TCGA expression | 0.0016 | ~ neutral |
+| Stability | 0.0018 | ↑ helps positives |
+| CSCAPE | 0.0007 | ↑ helps positives |
+
+### What the ensemble TRADES
+| | Ensemble-only picks | Binding-only picks |
+|---|-------------------|-------------------|
+| N peptides | 278 | 278 |
+| Avg binding rank | 0.3 (weaker) | 0.05 (stronger) |
+| **Avg expression** | **143 TPM** | **33 TPM** |
+
+**The ensemble trades strong-but-low-expression binders for weaker-but-
+highly-expressed peptides.** Expression is 4.3x higher in ensemble picks.
+
+### Clinical interpretation
+"The ensemble selects peptides from highly expressed genes. When two
+peptides bind similarly, the one from the more expressed gene is
+preferred — more copies will be presented on the cell surface,
+increasing the probability of T-cell recognition."
+
+### TESLA3 example: 9/11 immunogenic peptides captured
+Every selected peptide has a clear reason:
+- Strong binder + high expression: RLFPYALHK (bind=0.01, expr=261)
+- Strong binder + driver gene: HALRRHYHL (bind=0.03, CSCAPE=0.90)
+- Moderate binder + very high expression: WGKLHVASL (bind=0.08, expr=875)
+
