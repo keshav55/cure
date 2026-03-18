@@ -1790,3 +1790,32 @@ The simplest competitive pipeline needs only:
 - HLA typing → binding prediction
 - RNA-seq → expression + alt support + stability
 Total: 3 prediction tools, $350 sequencing
+
+## DeepImmuno Comparison (2026-03-18)
+
+### AUC comparison (TESLA)
+| Method | AUC | Data used |
+|--------|-----|-----------|
+| Our cross-dataset (NCI→TESLA) | **0.995** | Binding, expression, stability, alt support |
+| DeepImmuno CNN | 0.654 | Peptide sequence + HLA only |
+| DeepImmuno RF | 0.619 | Peptide sequence + HLA only |
+| IEDB score | 0.523 | Sequence-based |
+
+### Recall@20 (TESLA subset, N=522 peptides, N=6 patients)
+| Method | recall@20 |
+|--------|-----------|
+| DeepImmuno CNN | 0.431 ± 0.101 |
+| DeepImmuno RF | 0.315 ± 0.092 |
+| IEDB | 0.204 ± 0.051 |
+
+### Why patient data beats sequence models
+DeepImmuno and IEDB only see the peptide sequence and HLA allele.
+They cannot see:
+- Whether the mutation is expressed (alt_support, p=5e-78)
+- How much the gene is expressed (TPM, p=8e-56)  
+- Whether the peptide-MHC complex is stable
+- Whether it's a clonal mutation (CCF)
+
+**Expression is the single most important feature for neoantigen prediction.**
+No sequence-only model can compete with a model that has expression data.
+This is the fundamental insight of this entire research program.
