@@ -1147,3 +1147,33 @@ Adding 100 more patients would gain ~0.02 recall. The most impactful next step
 isn't more data from the same distribution — it's new features (structural,
 TCR repertoire) or new evaluation paradigms (patient-level outcomes).
 
+
+## Combined Three-Level Pipeline — FAILS (2026-03-18)
+
+### LOPO result
+| Approach | recall@20 | vs Bind | Worse | p |
+|----------|-----------|---------|-------|---|
+| Binding | 0.529 | — | — | — |
+| **Safety net (10+10)** | **0.636** | **+0.107** | **2** | **0.002** |
+| Combined 3-level | 0.507 | -0.022 | 15 | 0.705 |
+
+### Why it fails
+The three-level approach (mutation ML → peptide ensemble → binding floor)
+performs WORSE than binding alone because:
+1. Selecting 1 peptide per mutation loses information — the immunogenic
+   peptide isn't always the top-scoring one within its mutation
+2. Mutation-level optimization doesn't translate to peptide-level accuracy
+3. 15 mutations × 1 peptide + 5 binding = worse budget allocation than
+   10 binding + 10 ensemble (safety net)
+
+### Final verdict on all approaches (LOPO K=20)
+| Rank | Approach | recall@20 | p vs bind |
+|------|----------|-----------|-----------|
+| 1 | **Safety net (10+10)** | **0.636** | **0.002** |
+| 2 | Peptide ensemble | 0.595 | 0.091 |
+| 3 | Two-level (mut→pep) | 0.576 | 0.206 |
+| 4 | Binding only | 0.529 | — |
+| 5 | Combined 3-level | 0.507 | 0.705 |
+
+**The safety net is the undisputed winner.** Simple beats complex.
+
