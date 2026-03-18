@@ -1380,3 +1380,46 @@ experiment that cannot be run without manual intervention.
 83 commits, 4 papers, 25+ experiments, 5 tools. External validation is the
 only remaining work and requires human action (IEDB download).
 
+
+## Gene-Level and Positional Analysis (2026-03-18)
+
+### Top immunogenic genes
+| Gene | Pos peptides | Patients | Enrichment |
+|------|-------------|----------|-----------|
+| TP53 | 8 | 6 | 12.4x |
+| KRAS | 3 | 2 | 5.3x |
+| KIF1B | 4 | 1 | 179x (single patient) |
+| MCTS1 | 4 | 1 | 1358x (single patient, 4/7 pos) |
+
+TP53 is the only gene with positives across >2 patients. Most "enriched"
+genes are artifacts of single patients with high positive rates.
+
+### 9-mers are dramatically preferred
+| Length | Positive rate | Binding AUC |
+|--------|-------------|------------|
+| 8-mer | 0.009% | 0.975 |
+| **9-mer** | **0.136%** | 0.952 |
+| 10-mer | 0.048% | 0.979 |
+| 11-mer | 0.014% | 0.976 |
+
+**9-mers are 15x more immunogenic than 8-mers.** This is the canonical
+MHC-I binding length and the strongest peptide-level feature we've found.
+Could be added to the ensemble as a simple binary feature.
+
+### Mutation position within 9-mers
+| Position | Immunogenic | Region | Rate |
+|----------|-----------|--------|------|
+| 7 | 17 | flank | **0.18%** (highest) |
+| 1 | 14 | flank | 0.16% |
+| 6 | 14 | TCR | 0.15% |
+| 4 | 6 | TCR | **0.07%** (lowest) |
+
+Position 7 (C-terminal flank) has the highest immunogenicity.
+Position 4 (TCR contact center) has the LOWEST. Counterintuitive —
+central mutations may be too disruptive to the peptide-MHC complex.
+
+### Gene identity does NOT help prediction
+Gene prior AUC = 0.340 (anti-correlated). Frequently mutated genes
+have LOW per-peptide immunogenicity because they generate many
+candidates. The enrichment at gene level is a volume effect.
+
