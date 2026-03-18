@@ -1723,3 +1723,35 @@ This two-step approach combines the best of both worlds:
 | rnaseq_TPM | 8.4e-56 | 52.3 | 1.7 |
 | CSCAPE_score | 4.1e-12 | 0.81 | 0.64 |
 | CCF | 1.7e-06 | 1.00 | 0.94 |
+
+## Two-Step Pipeline Converges (2026-03-18)
+
+### Result
+| Method | recall@20 | Level |
+|--------|-----------|-------|
+| Mutation GBT | 0.547 | Mutation |
+| Two-step (mut→pep) | **0.505** | Peptide |
+| Peptide gated GBT+RF | **0.505** | Peptide |
+| Peptide binding only | 0.276 | Peptide |
+
+### Key insight: CONVERGENCE
+Two completely independent approaches converge on the same peptide-level
+recall@20 of 0.505:
+1. Bottom-up: peptide-level features + two-gate filter + GBT+RF
+2. Top-down: mutation-level features + GBT → retrieve peptides
+
+This convergence strongly suggests **0.505 is near the ceiling** for
+recall@20 on this data. The remaining 49.5% of positives are likely
+either (a) in the 19.1% that fail the gate (no alt support) or 
+(b) indistinguishable from negatives with current features.
+
+### Why the ceiling exists
+- 34 positive peptides fail the two-gate filter (19.1% of positives)
+- 46 additional mutations have no matching immunogenic peptide (mut pos but pep neg)
+- Together these account for the ~50% miss rate
+
+### Clinical takeaway
+Two prescriptions, same medicine:
+- If you have peptide-level features → gated GBT+RF
+- If you only have mutation-level features → mutation GBT + binding selection
+- Both give you ~10 immunogenic peptides in 20 candidates
