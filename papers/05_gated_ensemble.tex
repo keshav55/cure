@@ -1,0 +1,239 @@
+\documentclass[11pt,twocolumn]{article}
+\usepackage[margin=0.85in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{titlesec}
+
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+
+\title{Gated Ensemble Neoantigen Prioritization:\\Variant Allele Expression as a Hard Filter\\Achieves 0.505 Recall@20 on 1.8M Peptides}
+\author{Atris Research}
+\date{March 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We present a two-stage pipeline for neoantigen vaccine candidate selection
+that achieves recall@20 of 0.505 in leave-one-patient-out cross-validation
+across 99 patients and 1,787,710 peptides from the NeoRanking, TESLA, and
+HiTIDE datasets. Our key insight is a hard gate on variant allele RNA-seq
+support (alt\_support $> 0$) combined with MHC binding rank ($< 2.0$), which
+eliminates 98.2\% of candidates while retaining 80.9\% of immunogenic
+peptides (13.6$\times$ enrichment). A stacked GBT+RF ensemble applied to
+gated candidates achieves an 83\% improvement over binding-rank-only
+prioritization ($p = 0.0002$). We additionally identify TP53 R175H and
+KRAS G12D as confirmed shared neoantigens immunogenic across independent
+patients, and explain the BRAF V600E immunogenicity paradox. All experiments
+use deterministic LOPO cross-validation with no data leakage.
+\end{abstract}
+
+\section{Introduction}
+
+Personalized cancer vaccines targeting neoantigens---mutant peptides presented
+on tumor cell surfaces---represent a promising immunotherapy approach.
+The central computational challenge is selecting which of thousands of
+candidate peptides to include in a vaccine, given that typically fewer than
+0.01\% are immunogenic.
+
+Current approaches rank candidates primarily by predicted MHC binding
+affinity. We show that a simple two-gate filter based on variant allele
+expression and binding rank, followed by an ensemble machine learning
+scorer, substantially outperforms binding-only ranking.
+
+\section{Data}
+
+We use the NeoRanking benchmark (Bjerregaard et al., 2020), which
+consolidates three datasets:
+
+\begin{itemize}[nosep]
+\item \textbf{NCI}: 1,377,707 peptides, 103 positive, 73 patients
+\item \textbf{TESLA}: 301,741 peptides, 34 positive, 16 patients
+\item \textbf{HiTIDE}: 108,262 peptides, 41 positive, 10 patients
+\end{itemize}
+
+Total: 1,787,710 peptides, 178 confirmed CD8+ immunogenic across 99 patients
+and 14 cancer types. Class imbalance: 99.99\% negative.
+
+\section{Methods}
+
+\subsection{Two-Gate Filter}
+
+We apply two hard gates sequentially:
+
+\begin{enumerate}[nosep]
+\item \textbf{Variant allele support $> 0$}: The mutation must have RNA-seq
+reads supporting the alternate allele. This confirms the mutation is
+transcribed from the tumor genome.
+\item \textbf{MHC binding rank $< 2.0$}: The mutant peptide must bind
+to at least one patient HLA allele with rank percentile below 2\%.
+\end{enumerate}
+
+\subsection{Ensemble Scoring}
+
+Gated candidates are scored by a stacked ensemble:
+\begin{itemize}[nosep]
+\item Gradient Boosted Trees (60\% weight): 100 trees, depth 3
+\item Random Forest (40\% weight): 100 trees, depth 5
+\end{itemize}
+
+Features (26 total): binding ranks (MixMHC, NetMHCpan, PRIME), stability
+rank, TAP score, proteasomal cleavage, expression (RNA-seq TPM, alt support,
+GTEx, TCGA), differential agretopicity, wildtype similarity, CSCAPE driver
+score, cancer cell fraction, peptide length, and interaction terms
+(binding$\times$expression, log transforms).
+
+\subsection{Evaluation}
+
+Leave-one-patient-out (LOPO) cross-validation: for each of 73 patients
+with $\geq 1$ positive peptide, train on all other patients and evaluate
+recall@$k$ (fraction of immunogenic peptides in the top $k$ predictions).
+
+\section{Results}
+
+\subsection{Gate Performance}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Gate} & \textbf{Peptides} & \textbf{Pos Kept} & \textbf{Rate} \\
+\midrule
+None & 1,787,710 & 100\% & 0.010\% \\
+Alt $> 0$ & 536,857 & 85.4\% & 0.028\% \\
+Alt $> 0$ + Bind $< 2$ & 32,669 & 80.9\% & 0.44\% \\
++ Expr $> 10$ TPM & 22,040 & 74.7\% & 0.60\% \\
+\bottomrule
+\end{tabular}
+\caption{Gate filter performance. The two-gate filter eliminates 98.2\% of
+candidates with 80.9\% positive retention.}
+\end{table}
+
+\subsection{Recall@20 Comparison}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrl}
+\toprule
+\textbf{Method} & \textbf{R@20} & \textbf{SE} & \textbf{$p$ vs bind} \\
+\midrule
+Gated GBT+RF & \textbf{0.505} & 0.051 & 0.0002 \\
+Gated GBT & 0.497 & 0.051 & 0.0002 \\
+Ungated GBT & 0.432 & 0.051 & 0.003 \\
+Binding only & 0.276 & 0.046 & --- \\
+\bottomrule
+\end{tabular}
+\caption{LOPO recall@20. Gated stacked ensemble achieves 83\% improvement
+over binding-only baseline.}
+\end{table}
+
+\subsection{Recall@$k$ Curve}
+
+At $k=50$ candidates, gated GBT achieves 0.649 recall; at $k=100$, 0.751.
+For a vaccine synthesizing 20 peptides, we recover half of all immunogenic
+candidates per patient.
+
+\subsection{Variant Allele Support Is the Key Feature}
+
+The \texttt{rnaseq\_alt\_support} feature shows the strongest separation
+between positive and negative peptides: median 39 reads (positive) vs.\
+0 (negative), Mann-Whitney $p = 2.6 \times 10^{-57}$. This confirms that
+immunogenic neoantigens must be actively transcribed from the mutant allele.
+
+Feature importance (GBT): binding rank (netMHCpan) 19.7\%, alt support
+12.5\%, TCGA expression 8.0\%, TAP score 5.6\%, binding score 5.2\%.
+
+\subsection{Expression $\times$ Binding Interaction}
+
+Strong binding + high expression yields 21.5$\times$ enrichment over
+weak binding + low expression. Neither feature alone is sufficient:
+strong binding alone gives 1.8$\times$, high expression alone gives
+0.2$\times$. The ensemble captures this non-linear interaction.
+
+\subsection{Cross-Dataset Transfer}
+
+Training on NCI+HiTIDE and evaluating on TESLA: AUC = 0.995.
+Training on TESLA and evaluating on NCI: AUC = 0.959.
+Positive peptide profiles are statistically indistinguishable between
+datasets for binding ($p = 0.52$) and expression ($p = 0.93$).
+
+\subsection{Error Analysis}
+
+Of 178 positives: 73 found in top 20 (hits), 71 passed gate but ranked
+$>$20 (misses), 34 failed the gate entirely. Gate failures: 26 lack
+alt support (no RNA-seq evidence), 8 have weak binding ($\geq 2.0$).
+Hits have median binding 0.05 vs.\ 0.20 for misses and stability
+0.30 vs.\ 1.10.
+
+\section{Shared Neoantigens}
+
+\subsection{Confirmed Shared Neoantigens}
+
+Two mutations are immunogenic in $\geq 2$ independent patients:
+\begin{itemize}[nosep]
+\item \textbf{TP53 R175H}: 2/6 patients immunogenic (33\%), presented by
+HLA-A*02:01 (29\% of population)
+\item \textbf{KRAS G12D}: 2/10 patients immunogenic (20\%), presented by
+12+ HLA alleles ($>$50\% population coverage)
+\end{itemize}
+
+\subsection{The BRAF V600E Paradox}
+
+BRAF V600E appears in 20 patients (most common driver) but is 0\%
+immunogenic. We show this is because only 5.4\% of BRAF V600E peptides
+bind strongly to any HLA allele (median rank 14.0). BRAF patients are
+actually \textit{more} immunogenic than non-BRAF patients (0.0175\% vs.\
+0.0084\%) for \textit{other} mutations. BRAF V600E should be targeted
+pharmacologically, not immunologically.
+
+\section{Additional Findings}
+
+\begin{itemize}[nosep]
+\item \textbf{Mutation burden}: significantly correlates with immunogenicity
+(Spearman $r = 0.226$, $p = 0.025$)
+\item \textbf{HLA alleles}: A*68:01 (7.4$\times$) and B*35:03
+(6.3$\times$) are most enriched for immunogenicity
+\item \textbf{AA substitutions}: charge-changing mutations (P$\to$R,
+R$\to$M) are 5$\times$ more immunogenic than average
+\item \textbf{Driver genes}: 3.7$\times$ enriched (17.4\% of positives
+vs.\ 4.7\% of negatives)
+\item \textbf{Clonality}: higher CCF correlates with immunogenicity
+($p = 0.0007$)
+\item \textbf{9-mers}: 15$\times$ more immunogenic than 8-mers
+\item \textbf{Simple scores fail}: no formula without ML replicates
+the ensemble's improvement ($p = 0.003$)
+\item \textbf{Patient prediction fails}: LOOCV AUC 0.420; 73.7\%
+of patients have $\geq 1$ positive, so assume universal vaccination
+\end{itemize}
+
+\section{Clinical Protocol}
+
+Based on these findings, we propose:
+\begin{enumerate}[nosep]
+\item Sequence tumor (WGS/WES) + RNA-seq
+\item Call neoantigens with patient-matched HLA alleles
+\item \textbf{Gate}: alt support $> 0$ AND binding rank $< 2.0$
+\item \textbf{Score}: GBT+RF ensemble on gated candidates
+\item \textbf{Select}: top 20 for vaccine synthesis
+\item Expected yield: $\sim$50\% of immunogenic peptides in 20 candidates
+\end{enumerate}
+
+Cost: WGS (\$200) + RNA-seq (\$50) + HLA typing (\$100) = \$350/patient.
+Compute: $<$1 minute on a laptop. No RNA-seq? Use TCGA cancer-type
+averages (same AUC, Paper 01).
+
+\section{Conclusion}
+
+A two-gate filter (variant allele expression + MHC binding) combined
+with ensemble machine learning achieves 0.505 recall@20 for neoantigen
+prioritization---an 83\% improvement over the binding-only standard of care.
+The gate alone provides 13.6$\times$ enrichment while eliminating 98.2\%
+of candidates. These results are validated across three independent
+datasets with consistent cross-dataset transfer.
+
+\end{document}
