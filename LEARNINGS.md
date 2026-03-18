@@ -1577,3 +1577,47 @@ just slightly better — it's the ONLY approach that works beyond binding.
 
 The GBT ensemble is significantly better than binding alone (p=0.003).
 25 of 73 patients achieve recall@20 = 1.0 (perfect).
+
+## Gated GBT Pipeline — Best Results (2026-03-18)
+
+### The two-gate filter is transformative
+| Gate | Peptides | Positive | Rate | Pos Retained |
+|------|----------|----------|------|-------------|
+| None | 1,787,710 | 178 | 0.010% | 100% |
+| alt > 0 | 536,857 | 152 | 0.028% | 85.4% |
+| alt > 0 + bind < 2 | 32,669 | 144 | 0.44% | 80.9% |
+| alt > 0 + bind < 2 + expr > 10 | 22,040 | 133 | 0.60% | 74.7% |
+
+The two-gate filter (alt_support > 0 AND binding < 2) eliminates 98.2% of 
+candidates while retaining 80.9% of positives. This is 13.6x enrichment.
+
+### LOPO recall@20 comparison
+| Method | recall@20 | SE | p vs binding |
+|--------|-----------|-----|-------------|
+| Gated GBT+RF stack | **0.505** | 0.051 | 0.0002 |
+| Gated GBT | 0.475-0.497 | 0.050 | 0.0002 |
+| Ungated GBT | 0.403-0.432 | 0.051 | 0.003 |
+| Binding only | 0.276 | 0.046 | — |
+
+### recall@k curve (gated GBT)
+| k | recall@k |
+|---|----------|
+| 5 | 0.240 |
+| 10 | 0.370 |
+| 20 | 0.481 |
+| 50 | 0.649 |
+| 100 | 0.751 |
+
+### Error analysis
+- Hits have binding 0.05 (vs 0.20 for misses), stability 0.30 (vs 1.10)
+- 34 positive peptides fail the gate: 26 have no alt_support, 11 weak binding
+- Gate failures are lower expression (median 22 TPM vs 64 for hits)
+- Rescue strategy (tiered scoring) HURTS — diluting T1 with T2 reduces recall
+
+### Clinical protocol from these findings
+1. Sequence tumor (WGS/WES) + RNA-seq → VCF + expression
+2. Call neoantigens with patient HLA alleles
+3. GATE: alt_support > 0 AND binding rank < 2.0
+4. SCORE: GBT+RF ensemble on gated candidates
+5. SELECT: top 20 for vaccine synthesis
+6. Expected yield: ~50% of immunogenic peptides in 20 candidates
