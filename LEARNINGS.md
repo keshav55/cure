@@ -1423,3 +1423,31 @@ Gene prior AUC = 0.340 (anti-correlated). Frequently mutated genes
 have LOW per-peptide immunogenicity because they generate many
 candidates. The enrichment at gene level is a volume effect.
 
+
+## Length Feature — No Help (2026-03-18)
+Adding is_9mer and raw_length to the ensemble: recall = +0.000, AUC = -0.001.
+The ensemble already captures length implicitly through binding features
+(9-mers bind differently than other lengths). Explicit length is redundant.
+
+## Improved Codon Optimizer: Beam Search (2026-03-18)
+
+### Greedy vs beam search comparison
+| Peptide | Method | GC% | CpG | CAI |
+|---------|--------|-----|-----|-----|
+| KRAS G12V | greedy | **77.8%** | 3 | 1.000 |
+| KRAS G12V | beam | **70.4%** | 2 | 0.872 |
+| Flu M1 | greedy | 63.0% | 1 | 1.000 |
+| Flu M1 | beam | 55.6% | 0 | 0.952 |
+| TP53 R248W | greedy | 56.7% | 0 | 1.000 |
+| TP53 R248W | beam | 53.3% | 0 | 0.971 |
+
+### How beam search helps
+- KRAS G12V: GC drops from 77.8% to 70.4% (-7.4 pp), still above ideal
+- CpG sites reduced in most peptides
+- CAI drops from 1.000 to 0.87-0.97 (still high, well above 0.80 threshold)
+- Beam search balances CAI, GC%, and CpG jointly
+
+### Assessment
+Beam search improves GC balance at minimal CAI cost. For clinical mRNA,
+this is the better approach. Greedy is fine for research pipelines.
+
