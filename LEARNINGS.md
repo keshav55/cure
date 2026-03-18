@@ -1819,3 +1819,36 @@ They cannot see:
 **Expression is the single most important feature for neoantigen prediction.**
 No sequence-only model can compete with a model that has expression data.
 This is the fundamental insight of this entire research program.
+
+## Ceiling Confirmed at 0.505 (2026-03-18)
+
+### Hierarchical ensemble doesn't help
+| Method | recall@20 | SE |
+|--------|-----------|-----|
+| Hierarchical (pep+mut) | 0.481 | 0.051 |
+| Peptide GBT (gated) | 0.487 | 0.051 |
+| Previous best (gated GBT+RF) | **0.505** | 0.051 |
+
+Wilcoxon p = 0.61 — no improvement.
+
+### Why the ceiling exists (definitive)
+The 0.505 ceiling is set by two hard constraints:
+1. **Gate failures**: 34 positives (19.1%) fail alt_support > 0 OR bind < 2.0
+2. **Feature indistinguishability**: the remaining missed positives look 
+   identical to negatives in all available features
+
+### What would break the ceiling
+1. **Better binding prediction** — capture the 8 positives with bind ≥ 2
+   (need allele-specific binding models, not pan-allele)
+2. **Expression from missing RNA-seq** — 26 positives have alt_support = 0,
+   likely because of low sequencing depth, not because the mutation isn't expressed
+3. **T-cell receptor features** — whether a TCR exists that recognizes 
+   the peptide-MHC complex (this data doesn't exist computationally)
+4. **Immunoproteasome cleavage** — tumor cells often express the
+   immunoproteasome, not the constitutive proteasome
+
+### Research program summary (97 commits)
+Started: 2026-03-15. 5 papers, 30+ experiments, 7 tools.
+SOTA recall@20 = 0.505 (peptide) / 0.547 (mutation).
+The ceiling is set by data quality, not algorithmic complexity.
+This confirms Paper 01's thesis: data quality dominates.
