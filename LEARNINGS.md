@@ -1451,3 +1451,40 @@ The ensemble already captures length implicitly through binding features
 Beam search improves GC balance at minimal CAI cost. For clinical mRNA,
 this is the better approach. Greedy is fine for research pipelines.
 
+
+## Expression × Binding Interaction (2026-03-18)
+
+### Quadrant analysis (the most clinically important finding)
+| Quadrant | Pos/Total | Rate | Enrichment |
+|----------|-----------|------|-----------|
+| Strong bind + High expr | 80/4,873 | 0.0164% | **21.5x** |
+| Strong bind + Low expr | 7/5,114 | 0.0014% | 1.8x |
+| Weak bind + High expr | 8/48,311 | 0.0002% | 0.2x |
+| Weak bind + Low expr | 1/67,486 | 0.00001% | 0.0x |
+
+**You need BOTH strong binding AND high expression.** Neither alone is
+sufficient. This is why the ensemble outperforms binding alone — it
+captures the binding × expression interaction that pure binding rank misses.
+
+### Optimal binding range
+| Binding rank | Positive rate | Enrichment |
+|-------------|--------------|-----------|
+| [0.0, 0.1) | **3.23%** | 42x |
+| [0.1, 0.5) | 1.08% | 14x |
+| [0.5, 1.0) | 0.18% | 2.3x |
+| [1.0, 2.0) | 0.23% | 3x |
+| [2.0, 5.0) | 0.04% | 0.6x |
+| [5.0, 50) | 0.001% | 0.02x |
+
+The strongest binders (rank < 0.1) are 42x enriched. But even moderate
+binders (0.5-2.0) have some signal.
+
+### Hamming distance from wildtype
+ALL immunogenic peptides have exactly 1 amino acid different from wildtype.
+0 peptides with distance ≥2 are immunogenic (out of 160 with distance ≥2).
+
+### Clinical implication
+For vaccine design: ONLY consider peptides that are (1) strong binders
+(rank < 2.0) AND (2) from highly expressed genes (TPM > median). This
+two-gate filter eliminates 92% of candidates while retaining 83% of positives.
+
