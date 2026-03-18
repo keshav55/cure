@@ -1519,3 +1519,61 @@ provides statistically significant clinical benefit.
 This strengthens the argument for the safety net approach: it's not
 just slightly better — it's the ONLY approach that works beyond binding.
 
+
+## Patient-Level & Cross-Dataset Analysis (2026-03-18)
+
+### Patient-level response
+- 99 patients total: 22 strong responders (≥3 pos), 51 low (1-2), 26 non-responders
+- Mutation burden significantly correlates with immunogenicity (Spearman r=0.226, p=0.025)
+- Cancer type hit rates: Sarcoma (0.063%) and Kidney (0.059%) highest, Melanoma/Colon/Lung middle
+- Responders have ~2x more peptides than non-responders (31K vs 16K)
+
+### HLA allele patterns
+- A*68:01 is 7.4x enriched (most immunogenic allele)
+- B*35:03 is 6.3x enriched
+- B58 supertype is 2.1x enriched overall
+- HLA-C alleles are generally LESS immunogenic than HLA-A/B
+
+### Amino acid substitutions
+- P→positive (5.2x), positive→negative (3.5x): charge-changing mutations most immunogenic
+- Hydrophobic→negative (0x) and polar→other (0x): these never produce immunity
+- Top individual: R→M (0.108%), P→R (0.087%), L→S (0.075%)
+
+### Recurrent shared neoantigens
+- TP53 R175H: immunogenic in 2 patients (4196, Patient8) — known hotspot
+- KRAS G12D: immunogenic in 2 patients (3995, 4095) — known hotspot
+- These are public neoantigens — off-the-shelf vaccine candidates
+
+### Cross-dataset validation
+- NCI and TESLA positive peptides: SAME binding (p=0.52) and expression (p=0.93) distributions
+- Stability differs (p=0.004) — TESLA positives more stable
+- Train NCI → eval TESLA: AUC = 0.995 (model transfers perfectly)
+- Train TESLA → eval NCI: AUC = 0.959
+- Cross-dataset transfer WORKS — the biology is consistent
+
+### Variant allele support (CRITICAL FINDING)
+- `rnaseq_alt_support` is the 2nd most important feature (after binding)
+- Positive peptides: median 39 reads, negative: median 0 reads
+- Mann-Whitney p = 2.6e-57 — the most significant feature difference
+- MEANING: immunogenic mutations must be actively transcribed from the mutant allele
+- This is a simple, measurable, binary gate: "is the mutation expressed?"
+
+### Driver mutations are more immunogenic
+- IntOGen driver genes: 17.4% of positives vs 4.7% of negatives (3.7x enrichment)
+- CSCAPE score: 0.825 (positive) vs 0.667 (negative)
+- Driver mutations are structurally constrained, ensuring peptide stability
+
+### Clonality
+- Clonal mutations: 88.2% positive vs 86.2% negative (slight enrichment)
+- CCF: 0.986 (positive) vs 0.942 (negative) (p=0.0007)
+- Higher clonal fraction → higher immunogenicity (makes sense: more copies → more presentation)
+
+### Full LOPO GBT ensemble vs binding
+| Method | recall@20 | SE | p-value |
+|--------|-----------|-----|---------|
+| GBT ensemble | **0.432** | 0.051 | — |
+| Binding only | 0.276 | 0.046 | — |
+| **Delta** | **+0.156** | — | **0.003** |
+
+The GBT ensemble is significantly better than binding alone (p=0.003).
+25 of 73 patients achieve recall@20 = 1.0 (perfect).
