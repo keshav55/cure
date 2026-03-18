@@ -1666,3 +1666,25 @@ Only include mutations with confirmed immunogenicity:
 2. KRAS G12D — 20% immunogenic, 12+ HLA alleles (50%+ population)
 3. TP53 R248W — 25% immunogenic (1/4 patients)
 These 3 are the only evidence-backed shared neoantigen vaccine candidates.
+
+## Patient-Level Response Prediction — FAILS (2026-03-18)
+
+### Result
+LOOCV AUC = 0.420 (BELOW RANDOM). Cannot predict which patients respond.
+
+### Why it fails
+73/99 patients (73.7%) have at least 1 immunogenic peptide. With this 
+base rate, nearly every patient responds. The question isn't "who responds?" 
+but "how many immunogenic peptides does each patient have?"
+
+### Best single predictor
+- n_with_alt_support (p=0.027): more expressed mutations → more positives
+- n_gated (p=0.052): more gate-passing peptides → more positives
+- Both are just proxies for mutation burden
+
+### Clinical implication
+**Don't try to predict patient response — assume everyone responds.**
+With 73.7% having ≥1 immunogenic peptide, the cost of false negatives
+(denying vaccine to a responder) far outweighs the cost of false positives
+(making vaccine for a non-responder). Just make the vaccine for everyone
+with sufficient mutation burden (>2000 peptides covers 99% of responders).
