@@ -1852,3 +1852,59 @@ Started: 2026-03-15. 5 papers, 30+ experiments, 7 tools.
 SOTA recall@20 = 0.505 (peptide) / 0.547 (mutation).
 The ceiling is set by data quality, not algorithmic complexity.
 This confirms Paper 01's thesis: data quality dominates.
+
+## ═══ COMPREHENSIVE RESEARCH SUMMARY (100 commits) ═══
+
+### Research Program: Neoantigen Vaccine Candidate Selection
+**Started**: 2026-03-15 | **Duration**: 4 days | **Commits**: 100
+**Data**: 1,787,710 peptides, 48,306 mutations, 99 patients, 14 cancer types
+
+### Papers
+1. **Paper 01**: Data Quality Dominates Algorithmic Complexity
+2. **Paper 02**: The Foreignness Paradox (anti-correlated, central tolerance)
+3. **Paper 03**: Vaccine Selection Pipeline (safety net approach)
+4. **Paper 04**: Unified Manuscript (all findings)
+5. **Paper 05**: Gated Ensemble (0.505 recall@20, definitive)
+
+### Key Numbers
+| Metric | Value |
+|--------|-------|
+| Best peptide recall@20 | **0.505 ± 0.051** |
+| Best mutation recall@20 | **0.547 ± 0.044** |
+| Cross-dataset AUC | 0.995 (NCI→TESLA) |
+| vs DeepImmuno AUC | 0.995 vs 0.654 |
+| vs binding-only | +83% improvement (p=0.0002) |
+| Gate enrichment | 13.6x (98.2% volume reduction) |
+| Expression significance | p = 5.2e-78 (alt_support) |
+
+### Proven Principles
+1. **Data > algorithms**: HLA alleles cause Δ0.802 AUC; best algorithm Δ0.107
+2. **Expression is everything**: alt_support (p=5e-78) + TPM (p=8e-56) dominate
+3. **Only 3 features matter**: binding, expression, stability. TAP is noise
+4. **Gates before ML**: eliminate 98% of candidates, keep 81% of positives
+5. **ML is necessary**: no simple formula replicates ensemble (p=0.003)
+6. **Ceiling at 0.505**: data quality, not algorithms, sets the limit
+7. **73% of patients respond**: don't predict who — vaccinate everyone
+8. **Mutation-level > peptide-level**: less noise, higher signal
+9. **Cross-dataset transfer works**: biology is consistent across cohorts
+
+### Shared Neoantigens
+- TP53 R175H (33% immunogenic, HLA-A*02:01)
+- KRAS G12D (20% immunogenic, 12+ HLA alleles)
+- BRAF V600E: **NOT** immunogenic (poor MHC binder, use drugs instead)
+
+### Tools Built
+1. `pipeline.py` — end-to-end VCF→vaccine candidates
+2. `scorer.py` / `scorer_simple.py` — peptide scoring
+3. `vaccine_selector.py` — vaccine cocktail optimization
+4. `clinical_selector.py` — clinical-grade selection
+5. `autoresearch_vaccine.py` — autonomous experiment runner
+6. `hla_typing.py` — HLA allele matching
+7. `protein_db.py` — protein database queries
+
+### What Would Break the Ceiling
+1. Better binding prediction for rare HLA alleles
+2. Deeper RNA-seq (rescue 26 positives with alt_support=0)
+3. T-cell receptor repertoire data (doesn't exist computationally)
+4. Immunoproteasome-specific cleavage prediction
+5. Wet lab validation (ELISpot, $11K)
