@@ -1755,3 +1755,38 @@ Two prescriptions, same medicine:
 - If you have peptide-level features → gated GBT+RF
 - If you only have mutation-level features → mutation GBT + binding selection
 - Both give you ~10 immunogenic peptides in 20 candidates
+
+## Feature Ablation — What Actually Matters (2026-03-18)
+
+### Incremental feature contribution (gated GBT, LOPO recall@20)
+| Features | recall@20 | Delta |
+|----------|-----------|-------|
+| Binding + expression | 0.420 | baseline |
+| + Stability rank | 0.473 | **+0.053** |
+| + TAP + cleavage | 0.465 | -0.008 (NOISE) |
+| + Driver + clonality | 0.466 | +0.001 |
+| All 19 features | 0.498 | +0.032 |
+
+### Minimal feature set
+Only 3 features matter: **binding rank, expression (TPM + alt_support), stability rank**.
+Everything else combined adds +0.025 (5% relative). TAP score and proteasomal 
+cleavage are NOISE — they hurt the model when added.
+
+### Clinically, this means:
+1. MHC binding prediction (NetMHCpan/MixMHC2.0) — essential
+2. RNA-seq for expression + variant allele confirmation — essential
+3. Peptide-MHC stability prediction — valuable (+12.6% relative)
+4. TAP transport prediction — worthless
+5. Proteasomal cleavage prediction — worthless
+6. Driver gene status — negligible (absorbed by expression)
+
+### HLA supertype distribution
+A02 is most immunogenic (0.020%), other/rare alleles have lowest (0.007%).
+Not enough data per supertype for allele-specific models (max 35 positives).
+
+### Implication for minimal pipeline
+The simplest competitive pipeline needs only:
+- VCF → mutation calling
+- HLA typing → binding prediction
+- RNA-seq → expression + alt support + stability
+Total: 3 prediction tools, $350 sequencing
