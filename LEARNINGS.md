@@ -1688,3 +1688,38 @@ With 73.7% having ≥1 immunogenic peptide, the cost of false negatives
 (denying vaccine to a responder) far outweighs the cost of false positives
 (making vaccine for a non-responder). Just make the vaccine for everyone
 with sufficient mutation burden (>2000 peptides covers 99% of responders).
+
+## Mutation-Level Scoring — NEW BEST (2026-03-18)
+
+### Key finding: mutation-level > peptide-level
+| Method | recall@20 | SE | N patients |
+|--------|-----------|-----|-----------|
+| Mutation ungated GBT | **0.547** | 0.044 | 97 |
+| Mutation alt-gated GBT | 0.522 | 0.045 | 97 |
+| Peptide gated GBT+RF | 0.505 | 0.051 | 73 |
+| Peptide binding only | 0.276 | 0.046 | 73 |
+
+### Why mutation-level works better
+1. **Less noise**: 48,306 mutations vs 1,787,710 peptides (37x fewer)
+2. **Higher signal**: 0.44% positive rate vs 0.01% (44x richer)
+3. **Expression-dominated**: at mutation level, rnaseq_alt_support (p=5e-78)
+   and rnaseq_TPM (p=8e-56) are the dominant features
+4. **No binding noise**: peptide-level binding rank introduces variance
+   (same mutation generates 5-50 peptides with different binding scores)
+5. **Gate not needed**: with fewer candidates and higher signal, the
+   ungated model outperforms the gated model
+
+### Clinical implication
+**Score mutations, not peptides.** Select top-ranked mutations first,
+THEN pick the best-binding peptide from each selected mutation.
+This two-step approach combines the best of both worlds:
+- Step 1: mutation-level ML identifies which mutations are immunogenic (0.547)
+- Step 2: binding rank selects the optimal peptide for each mutation
+
+### Feature significance (mutation level)
+| Feature | p-value | Positive median | Negative median |
+|---------|---------|----------------|----------------|
+| rnaseq_alt_support | 5.2e-78 | 41.2 | 0.0 |
+| rnaseq_TPM | 8.4e-56 | 52.3 | 1.7 |
+| CSCAPE_score | 4.1e-12 | 0.81 | 0.64 |
+| CCF | 1.7e-06 | 1.00 | 0.94 |
