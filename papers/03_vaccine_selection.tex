@@ -265,6 +265,10 @@ $K$ & Safety net & Binding & Worse & $p$ \\
 \caption{LOPO safety net evaluation (73 patients). Significant at all vaccine sizes. $K$=30 gives the strongest result ($p$ = 0.0001).}
 \end{table}
 
+\subsection{Robustness to Feature Noise}
+
+To assess clinical robustness, we added multiplicative Gaussian noise to all features at test time while keeping the trained model fixed. At 50\% noise, the safety net degrades by only 6\% (0.581 $\to$ 0.546) while binding rank drops 45\% (0.439 $\to$ 0.243). The ensemble at 50\% noise still outperforms clean binding. This robustness arises from two mechanisms: (1) the binding floor uses raw rankings unaffected by ML noise, and (2) the ensemble averages over multiple features, diluting noise in any single predictor.
+
 \subsection{Bootstrap Stability}
 
 100 bootstrap resamples of the training data yield mean recall@20 = 0.608 $\pm$ 0.040 (95\% CI [0.521, 0.685]). All 100 resamples outperform binding rank (0.492); 90/100 outperform hand-tuned selection (0.555). Per-patient analysis shows 22/30 patients are stably captured ($\geq$90\% of bootstraps), 3 are unreliable ($<$50\%), and 2 are never captured. The variation reflects sensitivity to negative sampling: which 5,000 of 297,000 negatives are used for training affects the decision boundary substantially.
