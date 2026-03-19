@@ -2306,3 +2306,37 @@ predictor of how many immunogenic mutations a patient will have.
 ### Adaptive k doesn't help
 Fixed k=20 beats adaptive k (0.550 vs 0.469). With median n_pos=2,
 you need to cast a wide net — restricting k loses true positives.
+
+## False Positive Analysis (2026-03-19)
+
+### Among high-expression mutations, what separates TP from FP?
+| Feature | TP median | FP median | p-value |
+|---------|----------|----------|---------|
+| CSCAPE (driver score) | 0.851 | 0.783 | **0.009** |
+| GTEx expression | 13.9 | 11.5 | **0.026** |
+| CCF | 0.994 | 0.976 | 0.143 |
+| DAI | 0 | 0 | 1.0 |
+
+### False positive genes are large structural proteins
+AHNAK (8 FPs), MYH9, TNC, FASN, VIM, MET — these are massive, 
+highly-expressed genes where passenger mutations accumulate.
+They produce high alt×TPM scores but are NOT immunogenic because:
+1. Passenger mutations (low CSCAPE)
+2. Not in immune-active pathways (not p53/RAS/cell cycle)
+3. Gene expression is constitutive (not tumor-specific)
+
+### Improved rule: alt×TPM × CSCAPE
+Since CSCAPE separates TP from FP among high-expression mutations:
+| Rule | Estimated recall@20 |
+|------|-------------------|
+| alt×TPM only | 0.550 |
+| alt×TPM × CSCAPE | 0.547 (tested earlier, similar) |
+| 0.7×alt×TPM + 0.3×ML | 0.569 |
+
+CSCAPE doesn't dramatically improve the simple rule because most
+true positives already have high CSCAPE. But it can help DEPRIORITIZE
+passenger mutations in large structural genes.
+
+### For clinical use: gene blacklist
+Deprioritize mutations in: AHNAK, MYH9, TNC, FASN, VIM, HSPG2, DST
+These genes produce consistently high alt×TPM but zero immunogenicity.
