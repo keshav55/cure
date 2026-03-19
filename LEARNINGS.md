@@ -1908,3 +1908,44 @@ This confirms Paper 01's thesis: data quality dominates.
 3. T-cell receptor repertoire data (doesn't exist computationally)
 4. Immunoproteasome-specific cleavage prediction
 5. Wet lab validation (ELISpot, $11K)
+
+## Peptide Sequence Features (2026-03-19)
+
+### Significant sequence features (positive vs negative)
+| Feature | Pos median | Neg median | p-value |
+|---------|-----------|-----------|---------|
+| C-terminal hydrophobicity | **2.80** | -0.80 | <0.0001 |
+| Mean hydrophobicity | -0.07 | -0.43 | <0.0001 |
+| Aromatic fraction | 0.111 | 0.091 | <0.0001 |
+| Aliphatic fraction | 0.317 | 0.250 | 0.0001 |
+| Anchor2 hydrophobicity | -0.70 | -0.80 | 0.0001 |
+| Sequence entropy | 1.889 | 1.906 | 0.038 |
+
+### C-terminal anchor is the key finding
+Immunogenic peptides overwhelmingly have hydrophobic C-terminal residues
+(L=3.8, V=4.2, I=4.5, F=2.8). This is because MHC-I anchors the peptide
+at positions 2 and C-terminus. Strong C-terminal anchoring = stable
+presentation = more T-cell recognition time.
+
+### Position 7 in 9-mers is the TCR contact hotspot
+Position 7 has the highest immunogenicity rate (0.045%). This is consistent
+with the known crystal structure of peptide-MHC-TCR complexes where 
+positions 4-7 are the primary TCR contact residues.
+
+### BUT: sequence features HURT the ensemble
+| Model | recall@20 |
+|-------|-----------|
+| Without sequence features | **0.531** |
+| With sequence features | 0.461 |
+
+Adding sequence features introduces noise that dilutes the strong
+expression and binding signals. The model already captures what it 
+needs from binding predictors (which incorporate anchor residues).
+
+### Cancer-specific models FAIL
+Melanoma-specific: 0.351 vs Global: 0.512.
+Not enough positives per cancer type. Pool all data.
+
+### Non-melanoma positives are more driver-like
+- CSCAPE: non-mel 0.88 vs mel 0.80 (p=0.012)
+- CCF: non-mel 1.03 vs mel 0.95 (p=0.007)
