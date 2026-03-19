@@ -2948,3 +2948,35 @@ The simple rule is the right choice because:
 2. Deterministic (no variance)
 3. Zero compute
 4. Interpretable biology
+
+## HLA Breadth & Peptide Count — HURT (2026-03-19)
+
+### HLA breadth is significant but redundant
+| Feature | Pos median | Neg median | p-value |
+|---------|-----------|-----------|---------|
+| N presenting alleles | 2 | 2 | 2.4e-16 |
+| N peptides | 47 | 47 | 0.15 (NS) |
+
+N_alleles is significant but adding it to the formula hurts:
+| Formula | recall@20 |
+|---------|-----------|
+| **CURRENT (no alleles)** | **0.705** |
+| × n_alleles | 0.693 |
+| × (1+n_alleles) | 0.694 |
+| × √n_alleles | 0.694 |
+| + n_alleles×10K | 0.618 |
+
+### Why it hurts despite being significant
+best_binding_rank ALREADY captures HLA breadth: a mutation presented
+by 3 alleles will naturally have a lower best-rank than one presented
+by 1 allele (more chances for a good fit). Adding n_alleles explicitly
+DOUBLE-COUNTS the binding signal and adds noise.
+
+### The formula is truly optimal
+After testing 30+ variants across 134 commits:
+```
+score = (alt×TPM) × (1/binding + 1/stability)
+```
+Nothing improves it: not PRIME, not TAP, not CSCAPE, not n_alleles,
+not n_peptides, not gene rate, not log transforms, not quadratic terms.
+The formula IS the biology. There is nothing else to add.
