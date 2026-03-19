@@ -2521,3 +2521,49 @@ meta-classifier would overfit badly. Not feasible at N=97.
 | 9 | SMOTE | 0.488 | Hurts |
 | 10 | Normalized | 0.445 | Hurts badly |
 | 11 | Binding only (peptide) | 0.276 | Standard of care |
+
+## Theoretical Maximum & Efficiency Analysis (2026-03-19)
+
+### How close to perfect are we?
+| Ranker | recall@20 | Efficiency |
+|--------|-----------|-----------|
+| Perfect | 1.000 | 100% |
+| **Our simple rule** | **0.578** | **57.8%** |
+| Random | 0.114 | 11.4% |
+
+We capture 57.8% of the theoretical maximum.
+We are 46.4 percentage points above random.
+
+### Bimodal distribution (the key insight)
+| Recall | Patients | % |
+|--------|----------|---|
+| **Perfect (1.0)** | **46** | **47%** |
+| Partial (0.001-0.999) | 25 | 26% |
+| **Zero (0.0)** | **26** | **27%** |
+
+The simple rule is ALL-OR-NOTHING for most patients:
+- 47% get perfect recall (all immunogenic mutations found)
+- 27% get zero recall (no immunogenic mutations found)
+- Only 26% are in between
+
+### Why it's bimodal
+For the 47% "perfect" patients: their immunogenic mutations happen to be
+among the highest-expressed mutations. The simple rule naturally ranks them first.
+
+For the 27% "zero" patients: their immunogenic mutations are NOT the
+highest-expressed. Something else makes them immunogenic (HLA-specific
+binding, TCR availability, clonality), and the expression signal fails.
+
+### Absolute numbers
+93 of 213 immunogenic mutations found (43.7%).
+This means our 20-candidate vaccine panels collectively capture 93 true
+immunogenic targets across 97 patients.
+
+### The remaining 42.2% gap
+To close the gap from 0.578 to 1.000, we need features that explain
+why moderately-expressed mutations are sometimes immunogenic. This likely
+requires:
+1. Patient HLA allele-specific binding affinity
+2. TCR repertoire data
+3. Tumor microenvironment features (PD-L1, TILs)
+4. Structural MHC-peptide-TCR modeling
