@@ -2410,3 +2410,28 @@ buried. The top 20 slots are filled with passenger mutations.
 | Breast/Pancreatic | 20 |
 | Melanoma | 50 (larger panel) |
 | Lung | 30 |
+
+## SMOTE Oversampling — HURTS (2026-03-19)
+
+### Results
+| Method | recall@20 |
+|--------|-----------|
+| Simple rule (best) | **0.578** |
+| Undersample 30x | 0.540 |
+| BorderlineSMOTE | 0.494 |
+| SMOTE | 0.488 |
+
+SMOTE creates synthetic positives that dilute the real signal.
+The synthetic examples are interpolations between positive mutations
+— but immunogenicity depends on patient-specific HLA, which can't
+be interpolated. Synthetic neoantigens are biologically meaningless.
+
+### AUC benchmark
+| Metric | Value |
+|--------|-------|
+| Global AUC (simple rule) | 0.862 |
+| Per-patient AUC | **0.878 ± 0.012** |
+
+Per-patient AUC of 0.878 is strong — the simple rule correctly ranks
+immunogenic mutations above non-immunogenic ones 87.8% of the time
+within each patient.
