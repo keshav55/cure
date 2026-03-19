@@ -2643,3 +2643,35 @@ Going from k=50→100 costs $3,750 more but adds +0.133 recall.
 adaptive_10pct (k = 10% of mutations, min 20, max 100):
 recall = 0.672, mean k = 35.6, cost = ~$2,700/patient.
 This adapts to each patient's mutation burden automatically.
+
+## Patient Stratification & Budget Optimization (2026-03-19)
+
+### Minimum k for 100% recall per patient
+| k needed | Patients | Cumulative |
+|----------|----------|-----------|
+| ≤10 | 28 | 29% |
+| ≤20 | 46 | **47%** |
+| ≤30 | 52 | 54% |
+| ≤50 | 62 | 64% |
+| ≤100 | 78 | 80% |
+| ≤200 | 85 | 88% |
+
+**Median k needed: 26** (just 6 above the default of 20!)
+47% of patients are perfectly served by k=20.
+80% are covered by k=100.
+
+### n_muts as a stratification predictor
+n_muts < 200 predicts "k=20 is enough" with 67% sensitivity, 78% specificity.
+Quick rule: if patient has < 200 mutations, k=20 is likely sufficient.
+If > 200, use k=50+.
+
+### Optimized budget allocation
+| Target recall | Avg k | Cost/patient | Patients achieved |
+|--------------|-------|-------------|------------------|
+| 50% | 35 | $2,586 | 91% |
+| 75% | 44 | $3,298 | 86% |
+| 90% | 47 | $3,507 | 80% |
+| 100% | 47 | $3,507 | 80% |
+
+The remaining 20% of patients have positives ranked >100 — these need
+fundamentally different features (HLA-specific, TCR data) to rescue.
