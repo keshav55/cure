@@ -2252,3 +2252,26 @@ Use alt_support × TPM (with TCGA rescue). It's better in every dimension.
 
 ML may help at scale (N > 1000 positives from larger studies).
 At current sample sizes, ML introduces more noise than signal.
+
+## TESLA Validation of Simple Rule (2026-03-19)
+
+### alt×TPM in TESLA dataset
+| Group | Median alt×TPM | N |
+|-------|---------------|---|
+| Positive | 1,914 | 36 |
+| Negative | 0 | 500 |
+| Mann-Whitney p | 2.56e-14 | — |
+
+The simple rule works in TESLA with the same overwhelming signal.
+Immunogenic mutations have massive mutant mRNA abundance; negatives have none.
+
+### DeepImmuno "potential" score
+The DeepImmuno dataset's "potential" column strongly separates pos (0.965)
+from neg (0.270), p≈0. Some HLA alleles have 100% immunogenicity rate
+(B*44:03, A*02:03, A*33:01) — but these may be data artifacts (tested only 
+with positive peptides).
+
+### Cross-validation stability (50 seeds, from above)
+ML GBT: 0.531 ± 0.016 (mean ± std)
+Simple rule: 0.550 (deterministic)
+Simple rule WINS in 84% of seeds.
