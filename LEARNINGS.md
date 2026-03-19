@@ -2837,3 +2837,47 @@ weren't using binding at the mutation level.
 Binding prediction (NetMHCpan) requires HLA typing (+$100).
 Total: $305 (shallow RNA-seq) + $100 (HLA) = $405/patient.
 But recall jumps from 0.578 → 0.694 (+20% relative).
+
+## ═══ NEW SOTA: 0.705 — Expression × (1/Binding + 1/Stability) ═══
+
+### The optimal formula
+```
+score = (alt×TPM) × (1/binding_rank + 1/stability_rank)
+```
+With TCGA rescue for no-alt mutations, gene blacklist for passengers.
+
+### Formula comparison
+| Formula | recall@20 |
+|---------|-----------|
+| **expr × (1/bind + 1/stab)** | **0.705** |
+| expr / bind² | 0.702 |
+| expr / bind | 0.694 |
+| expr / (bind × stab) | 0.693 |
+| expr / bind / stab | 0.689 |
+| expr / (bind + stab) | 0.676 |
+| expr / √bind | 0.660 |
+| expr only | 0.578 |
+
+### Why additive 1/bind + 1/stab wins
+The additive form means EITHER strong binding OR high stability
+can boost a mutation. The multiplicative form (bind × stab) requires
+BOTH, which is too strict. Some immunogenic mutations have great
+binding but mediocre stability (or vice versa).
+
+### Updated cost-recall curve (with binding+stability)
+| k | recall | Cost | vs old |
+|---|--------|------|--------|
+| 10 | 0.528 | $750 | — |
+| 20 | **0.694** | **$1,500** | **+0.116** |
+| 30 | 0.776 | $2,250 | +0.098 |
+| 50 | **0.867** | **$3,750** | **+0.109** |
+| 100 | **0.921** | $7,500 | +0.031 |
+
+At k=50, we now find 86.7% of immunogenic mutations — up from 75.8%.
+At k=100, we find 92.1% — near-complete coverage.
+
+### The final biological formula
+Immunogenicity = mRNA_abundance × immune_visibility
+where:
+- mRNA_abundance = alt_support × TPM
+- immune_visibility = 1/binding_rank + 1/stability_rank
