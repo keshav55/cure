@@ -2340,3 +2340,38 @@ passenger mutations in large structural genes.
 ### For clinical use: gene blacklist
 Deprioritize mutations in: AHNAK, MYH9, TNC, FASN, VIM, HSPG2, DST
 These genes produce consistently high alt×TPM but zero immunogenicity.
+
+## Gene Blacklist + TCGA Rescue = NEW SIMPLE RULE SOTA (2026-03-19)
+
+### Results (all zero ML, deterministic)
+| Rule | recall@20 |
+|------|-----------|
+| **TCGA rescue + blacklist** | **0.578** |
+| alt×TPM × CSCAPE (no blacklist) | 0.563 |
+| alt×TPM + hotlist 2x - blacklist | 0.555 |
+| alt×TPM (blacklist 0.1x) | 0.554 |
+| alt×TPM × CSCAPE | 0.552 |
+| alt×TPM (baseline) | 0.550 |
+
+### The ultimate simple rule (0.578, zero ML)
+```
+if alt_support > 0:
+    score = alt_support × TPM
+else:
+    score = TCGA_expression × CSCAPE × 0.001
+
+if gene in {AHNAK, MYH9, TNC, FASN, VIM, HSPG2, DST, MBP, FAT1, CNOT1, MET}:
+    score *= 0.1  # deprioritize passenger-heavy genes
+```
+
+This achieves 0.578 recall@20 — matching the ML exhaustive search SOTA
+— with zero training, zero variance, and zero compute cost.
+
+### The research journey
+1. Started with binding only: 0.276
+2. ML ensemble: 0.505 (peptide), 0.547 (mutation)
+3. Discovered alt×TPM: 0.550 (zero ML)
+4. Added TCGA rescue: 0.574
+5. Added gene blacklist: **0.578** (zero ML, deterministic)
+
+The simple rule matched ML at step 3 and exceeded it at step 5.
