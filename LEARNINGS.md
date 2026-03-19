@@ -2030,3 +2030,31 @@ The ceiling is set by:
 2. **TCR data**: whether a T-cell receptor exists that binds the peptide-MHC
 3. **Deeper RNA-seq**: rescue the 26 positives with alt_support=0
 4. **Structural features**: 3D peptide-MHC-TCR complex modeling
+
+## DeepImmuno Transfer Learning — FAILS (2026-03-19)
+
+### Approach
+Train a sequence-based immunogenicity predictor on DeepImmuno's 8,971 peptides
+(3,747 positive, AUC=0.675), then use its predictions as a feature in our
+mutation-level model.
+
+### Results
+| Model | recall@20 |
+|-------|-----------|
+| Base (expression features) | **0.540** |
+| + DeepImmuno score | 0.529 (-0.011) |
+
+### Why it fails
+1. DeepImmuno AUC is only 0.675 — too noisy to be useful
+2. The sequence signal (hydrophobicity, anchors) is already captured by
+   the binding predictors in our main dataset
+3. Adding a weak feature to a strong model dilutes the strong features
+
+### Principle confirmed
+Expression data > sequence data. No sequence-only model adds value when
+you already have patient-specific expression measurements.
+This is now confirmed from FOUR directions:
+1. DeepImmuno AUC (0.654) vs our AUC (0.995) on TESLA
+2. DeepImmuno transfer HURTS our model
+3. Peptide sequence features HURT our model  
+4. Feature ablation: binding+expression explains 84% of signal
