@@ -2140,3 +2140,39 @@ Cost: $50 (RNA-seq only). Time: 30 seconds on any computer.
 | Stable GBT ensemble | 0.540 | 15-seed average |
 | ML only (single) | 0.519 | Baseline ML |
 | Binding only (peptide) | 0.276 | Standard of care |
+
+## Pathway-Level Immunogenicity (2026-03-19)
+
+### Pathway enrichment for immunogenicity
+| Pathway | Pos/Total | Rate | Enrichment |
+|---------|-----------|------|-----------|
+| **p53/apoptosis** | 7/72 | 9.7% | **22.0x** |
+| **Cell cycle** | 2/21 | 9.5% | **21.6x** |
+| **RAS/MAPK** | 5/100 | 5.0% | **11.3x** |
+| PI3K/AKT | 1/58 | 1.7% | 3.9x |
+| WNT | 0/59 | 0% | 0x |
+| Chromatin | 0/73 | 0% | 0x |
+| DNA repair | 0/38 | 0% | 0x |
+| RTK | 0/44 | 0% | 0x |
+
+### Top immunogenic genes
+- TP53: 6 pos / 64 total (9.4%, 6 patients) — most consistently immunogenic
+- KRAS: 3 pos / 50 total (6.0%, 3 patients)
+- NRAS: 2 pos / 7 total (28.6%, 2 patients)
+- NCL: 3 pos / 5 total (60%, 1 patient)
+- RPS15: 2 pos / 2 total (100%, 2 patients) — ribosomal protein!
+
+### Clinical insight: IMMUNE HOT vs COLD pathways
+The p53/cell cycle/RAS axis is "immune hot" — mutations in these pathways
+produce immunogenic neoantigens 10-22x more often than average.
+WNT, chromatin remodeling, DNA repair, and RTK pathways are "immune cold"
+— ZERO immunogenic mutations despite 214 total mutations.
+
+**This has profound implications for vaccine design:**
+Prioritize mutations in p53/RAS/cell cycle pathways.
+Deprioritize mutations in WNT/chromatin/DNA repair/RTK.
+Gene identity is a genuinely informative feature (+0.016 recall).
+
+### Gene rate as ML feature
+Adding per-gene immunogenicity rate: 0.566 vs 0.550 alt×TPM only (+0.016).
+Combined with residual learning: 0.7×(alt×TPM) + 0.3×ML_with_gene = best.
