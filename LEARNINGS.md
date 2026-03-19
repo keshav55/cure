@@ -2567,3 +2567,46 @@ requires:
 2. TCR repertoire data
 3. Tumor microenvironment features (PD-L1, TILs)
 4. Structural MHC-peptide-TCR modeling
+
+## Anatomy of Zero-Recall Patients (2026-03-19)
+
+### What distinguishes perfect vs zero patients
+| Metric | Perfect (N=46) | Zero (N=26) | p-value |
+|--------|---------------|-------------|---------|
+| Median mutations | **158** | **294** | **0.0001** |
+| Median n_pos | 1 | 2 | 0.018 |
+
+Zero patients have 2x more mutations (p=0.0001). More mutations → more
+high-expression competitors → immunogenic mutations get pushed below rank 20.
+
+### Cancer type breakdown
+| Cancer | Perfect | Zero | Partial |
+|--------|---------|------|---------|
+| Colon | 24 | 5 | 6 | ← 69% perfect
+| Melanoma | 8 | 9 | 13 | ← 27% perfect
+| Lung | 2 | 5 | 3 | ← 20% perfect
+
+Colon is mostly perfect (low mutation burden). Melanoma is split.
+Lung is mostly zero/partial (moderate burden, expression noise).
+
+### WHERE do positives rank in zero patients?
+Most immunogenic mutations rank 22-90 — JUST below the cutoff.
+- 3703 (melanoma): best positive at rank 22/297 (just missed!)
+- 3309 (melanoma): best positive at rank 25/362
+- 4126 (lung): best positive at rank 25/265
+- 3881 (melanoma): best positive at rank 85/2852 (buried)
+
+### The near-miss problem
+For 15/26 zero patients, at least one positive ranks 21-50.
+These are "near misses" — k=50 instead of k=20 would rescue them.
+
+### Practical solution: adaptive k by mutation burden
+| Mutation burden | Recommended k | Patients |
+|----------------|---------------|----------|
+| < 200 | 20 (default) | ~60% |
+| 200-500 | 30 | ~25% |
+| 500-1000 | 50 | ~10% |
+| > 1000 | 100 | ~5% |
+
+This would turn many zero patients into partial/perfect.
+The cost: synthesize more peptides per patient ($200-500 more).
