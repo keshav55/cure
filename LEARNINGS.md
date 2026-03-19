@@ -2435,3 +2435,40 @@ be interpolated. Synthetic neoantigens are biologically meaningless.
 Per-patient AUC of 0.878 is strong — the simple rule correctly ranks
 immunogenic mutations above non-immunogenic ones 87.8% of the time
 within each patient.
+
+## Pairwise Learning-to-Rank + Normalization — BOTH FAIL (2026-03-19)
+
+### Results
+| Method | recall@20 |
+|--------|-----------|
+| Simple rule (TCGA+BL) | **0.578** |
+| Standard GBT | 0.549 |
+| Pairwise LTR | 0.536 |
+| Normalized + gene boost | 0.445 |
+
+### Why pairwise LTR fails
+Learning from feature differences (pos_i - neg_j) loses the ABSOLUTE
+magnitude of expression. A mutation with alt×TPM=100K beats one with
+50K, but the DIFFERENCE doesn't capture that both are good.
+The simple rule uses absolute values, which is the right approach.
+
+### Why normalization fails
+Within-patient percentile normalization destroys the absolute expression
+signal. A mutation in the 99th percentile of a low-burden patient
+(alt×TPM=5K) gets the same score as the 99th percentile of a high-burden 
+patient (alt×TPM=500K), but the latter is a much stronger candidate.
+
+### The meta-lesson (after 120 commits)
+Every sophisticated approach we've tried fails to beat alt×TPM:
+- ML classification: 0.531 (average), 0.578 (lucky seed)
+- Stacked ensembles: 0.545
+- Hierarchical models: 0.481
+- SMOTE oversampling: 0.488
+- Pairwise LTR: 0.536
+- Within-patient normalization: 0.445
+- Sequence features: hurt
+- DeepImmuno transfer: hurt
+- Cancer-specific models: hurt
+
+**The simple rule (0.578) is the ceiling for this data.**
+The only way to improve is better data (more patients, deeper sequencing).
