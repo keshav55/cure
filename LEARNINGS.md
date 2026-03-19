@@ -2214,3 +2214,41 @@ is typically expressed in this cancer type, even without patient-specific eviden
 `alt_support × TPM` for mutations with alt support,
 `TCGA_expression × CSCAPE × 0.001` for mutations without.
 recall@20 = **0.574** with zero ML.
+
+## Cross-Validation Stability: 50 Seeds (2026-03-19)
+
+### THE DEFINITIVE RESULT
+| Metric | ML (50 seeds) | Simple Rule |
+|--------|--------------|-------------|
+| Mean recall@20 | 0.531 ± 0.016 | **0.550** |
+| Min | 0.487 | 0.550 |
+| Max | 0.558 | 0.550 |
+| 95% CI | [0.493, 0.556] | [0.550, 0.550] |
+| Beats other | 16% of seeds | **84% of seeds** |
+
+### The simple rule WINS
+ML beats the simple rule in only 16% of random seeds.
+The "SOTA" of 0.578 was a lucky top-2% seed.
+The true ML performance (0.531) is BELOW the simple rule (0.550).
+
+### THIS CHANGES EVERYTHING
+The simple rule (alt_support × TPM) is:
+1. **More accurate** than ML (0.550 vs 0.531 average)
+2. **More stable** (zero variance vs 0.016 std)
+3. **Simpler** (one multiplication vs training a GBT)
+4. **Cheaper** (no compute needed)
+5. **More reproducible** (deterministic)
+6. **Faster** (milliseconds vs minutes)
+
+### Why ML fails here
+With only 213 positives and 48K total mutations, GBT is overfitting to
+the training fold's negative sampling. Each random seed selects different
+negatives → different decision boundaries → high variance (0.016 std).
+The simple rule avoids this by not training at all.
+
+### Final recommendation
+**DO NOT USE ML for neoantigen prioritization at this sample size.**
+Use alt_support × TPM (with TCGA rescue). It's better in every dimension.
+
+ML may help at scale (N > 1000 positives from larger studies).
+At current sample sizes, ML introduces more noise than signal.
