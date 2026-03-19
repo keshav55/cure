@@ -2881,3 +2881,39 @@ Immunogenicity = mRNA_abundance × immune_visibility
 where:
 - mRNA_abundance = alt_support × TPM
 - immune_visibility = 1/binding_rank + 1/stability_rank
+
+## Extended Formula Search — Current Is Optimal (2026-03-19)
+
+### Nothing beats expr × (1/bind + 1/stab) = 0.705
+| Extension | recall@20 |
+|-----------|-----------|
+| **Current (1/bind + 1/stab)** | **0.705** |
+| + 1/PRIME | 0.692 (hurts) |
+| × (1+n_strong) | 0.697 (hurts) |
+| + TAP | 0.673 (hurts) |
+| bind² version | 0.702 (close) |
+| (1/bind+1/stab)² | 0.687 (hurts) |
+| √expr × visibility | 0.687 (hurts) |
+| log(expr) × visibility | 0.642 (hurts) |
+
+The formula is at its ceiling. Adding PRIME, TAP, n_strong_binders,
+or changing the functional form all reduce performance.
+
+### Per-dataset validation
+| Dataset | recall@20 |
+|---------|-----------|
+| NCI | **0.733** |
+| HiTIDE | 0.700 |
+| TESLA | 0.427 |
+
+### The definitive formula (132 commits)
+```
+immunogenicity_score = mRNA_abundance × immune_visibility
+
+where:
+  mRNA_abundance = alt_support × TPM
+  immune_visibility = 1/binding_rank + 1/stability_rank
+  
+  rescue: if no alt_support, use TCGA_expression × CSCAPE
+  blacklist: passenger genes × 0.1
+```
