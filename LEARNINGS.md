@@ -2472,3 +2472,52 @@ Every sophisticated approach we've tried fails to beat alt×TPM:
 
 **The simple rule (0.578) is the ceiling for this data.**
 The only way to improve is better data (more patients, deeper sequencing).
+
+## Subgroup Analysis: Where Does ML Win? (2026-03-19)
+
+### Per-patient results
+| Outcome | Patients | % |
+|---------|----------|---|
+| Tie | 70 | 72% |
+| Simple wins | 18 | 19% |
+| ML wins | 9 | 9% |
+
+### Oracle (always pick the better method)
+| Method | recall@20 |
+|--------|-----------|
+| **Oracle** | **0.632** |
+| Simple rule | 0.578 |
+| ML only | 0.540 |
+
+If we could predict which method to use per patient, we'd gain +0.054.
+
+### Where ML wins (9 patients)
+ML excels for rare cancers: cholangiocarcinoma, breast, pancreatic, some lung.
+These patients have unusual expression patterns where the simple rule's
+ranking is poor, but ML learns cross-patient expression patterns that help.
+
+### Where simple rule wins (18 patients)
+Simple rule dominates colon (6/18) and melanoma (9/18) — high-burden
+tumors where the highest-expressed mutations ARE the immunogenic ones.
+ML gets confused by the many competing high-expression mutations.
+
+### Could we build a meta-classifier?
+The oracle gain (5.4%) is real but we'd need to predict per-patient
+which method is better. With only 9 ML-winning patients, this
+meta-classifier would overfit badly. Not feasible at N=97.
+
+### Final definitive ranking of all approaches (121 commits)
+| Rank | Method | recall@20 | Notes |
+|------|--------|-----------|-------|
+| 0 | **Oracle (simple+ML)** | **0.632** | Theoretical ceiling |
+| 1 | Simple rule + rescue + BL | **0.578** | Production recommendation |
+| 2 | alt×TPM × CSCAPE (no BL) | 0.563 | Simpler alternative |
+| 3 | alt×TPM only | 0.550 | Minimal |
+| 4 | 0.7×simple + 0.3×ML | 0.569 | Marginal ML benefit |
+| 5 | ML GBT (best seed) | 0.578 | Unstable (seed-dependent) |
+| 6 | ML GBT (50-seed avg) | 0.531 | True ML performance |
+| 7 | Pairwise LTR | 0.536 | |
+| 8 | 100-bootstrap | 0.542 | |
+| 9 | SMOTE | 0.488 | Hurts |
+| 10 | Normalized | 0.445 | Hurts badly |
+| 11 | Binding only (peptide) | 0.276 | Standard of care |
