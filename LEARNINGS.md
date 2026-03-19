@@ -1976,3 +1976,27 @@ We tested 36 combinations in minutes vs hand-picking one config.
 The optimal config (50/3/0.10/30) is NOT what an expert would choose
 — experts typically prefer more trees and more data. The search proved
 that restraint (fewer trees, less data) beats intuition.
+
+## Seed Ensemble & Diversity Stacking (2026-03-19)
+
+### Approach: average 10+ models with different random seeds
+Each model sees different negative samples → different decision boundaries.
+Averaging smooths out sampling noise.
+
+### Results (mutation level)
+| Method | recall@20 | SE | p vs single |
+|--------|-----------|-----|-------------|
+| 15-seed GBT+RF stack | 0.545 | 0.044 | 0.078 |
+| 10-seed GBT ensemble | 0.530 | 0.044 | 0.311 |
+| Single GBT (optimal) | 0.519 | 0.044 | — |
+| Exhaustive search SOTA | **0.578** | — | — |
+
+### Insight
+Seed ensembles help (+0.026 recall) but the improvement isn't statistically
+significant with 97 patients. The variance from random seed selection
+(+0.060 spread from exhaustive search) exceeds the ensemble benefit.
+This means our "SOTA" of 0.578 may include some seed luck.
+
+### Conservative estimate
+True recall@20 is likely in the 0.53-0.58 range. The exhaustive search
+found the lucky seed; the ensemble gives the stable estimate.
