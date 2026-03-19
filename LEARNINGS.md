@@ -2176,3 +2176,41 @@ Gene identity is a genuinely informative feature (+0.016 recall).
 ### Gene rate as ML feature
 Adding per-gene immunogenicity rate: 0.566 vs 0.550 alt×TPM only (+0.016).
 Combined with residual learning: 0.7×(alt×TPM) + 0.3×ML_with_gene = best.
+
+## Gate Rescue: TCGA Expression Fallback (2026-03-19)
+
+### The problem
+29/213 immunogenic mutations (13.6%) have zero alt_support reads.
+These are invisible to the alt×TPM rule.
+
+### Profile of no-alt positives
+- Lower expression: TPM 18.7 (vs 65.4 for has-alt positives)
+- Lower CSCAPE: 0.74 (vs 0.82)
+- Similar CCF: 1.00 (vs 0.99)
+- TCGA expression: 36.7 (massively above negative median of 0.3, p<0.0001)
+
+### TCGA rescue strategy
+When alt_support = 0: use TCGA_expression × CSCAPE × 0.001 as fallback.
+This provides a population-level expression estimate for mutations where
+patient-specific RNA-seq failed to detect the variant allele.
+
+### Results
+| Metric | With Rescue | Without |
+|--------|------------|---------|
+| Patients with no-alt positives (N=20) | **0.340** | 0.240 (+0.100) |
+| Global recall@20 (N=97) | **0.574** | 0.550 (+0.024) |
+
+### Why it works
+No-alt positives are in genes that ARE expressed (TCGA median 36.7) — the
+RNA-seq just missed the variant allele, likely due to:
+1. Low sequencing depth
+2. Heterozygous mutations with allelic imbalance
+3. Technical artifacts in variant calling
+
+TCGA population-average expression rescues these by confirming the gene
+is typically expressed in this cancer type, even without patient-specific evidence.
+
+### Updated best simple rule
+`alt_support × TPM` for mutations with alt support,
+`TCGA_expression × CSCAPE × 0.001` for mutations without.
+recall@20 = **0.574** with zero ML.
