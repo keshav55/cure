@@ -2699,3 +2699,32 @@ because it depends on mutation burden.
 ### This validates the simple rule across 3 independent cohorts
 The biological principle (immunogenicity ≈ mutant mRNA) is universal.
 The only variable is how many competing mutations each patient has.
+
+## Sequencing Depth Robustness (2026-03-19)
+
+### The simple rule is remarkably robust to reduced depth
+| Depth | recall@20 | % pos detected | Cost |
+|-------|-----------|---------------|------|
+| 100% | 0.578 | 85.9% | $50 |
+| 75% | 0.573 | 85.7% | $37 |
+| 50% | 0.567 | 85.6% | $25 |
+| 30% | 0.567 | 85.1% | $15 |
+| 20% | 0.548 | 84.3% | $10 |
+| **10%** | **0.546** | **81.5%** | **$5** |
+| 5% | 0.508 | 71.0% | $2 |
+| 0% (TCGA) | 0.425 | — | $0 |
+
+### Key insight: 10% depth ($5) loses only 0.032 recall
+At 10% depth, most immunogenic mutations still have detectable variant
+alleles (median 41 reads → ~4 reads at 10%). The rule barely degrades
+because the RANKING doesn't change — high-expression mutations remain
+high-expression at any depth.
+
+### Minimum viable protocol
+$5 RNA-seq (shallow) + $200 WGS + $100 HLA typing = **$305/patient**
+recall@20 ≈ 0.546 (vs 0.578 at full depth, only -5.5%)
+
+### Zero-sequencing fallback
+TCGA × CSCAPE (no patient sequencing): recall@20 = 0.425
+TPM only (basic RNA-seq, no variant calling): recall@20 = 0.433
+Both viable for resource-limited settings.
