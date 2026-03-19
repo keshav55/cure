@@ -2610,3 +2610,36 @@ These are "near misses" — k=50 instead of k=20 would rescue them.
 
 This would turn many zero patients into partial/perfect.
 The cost: synthesize more peptides per patient ($200-500 more).
+
+## Cost-Recall Tradeoff & Adaptive K (2026-03-19)
+
+### The cost-recall curve (most actionable finding for clinicians)
+| k (panel size) | recall@k | Cost/patient | Marginal recall |
+|----------------|----------|-------------|----------------|
+| 10 | 0.383 | $750 | — |
+| 15 | 0.476 | $1,125 | +0.094 |
+| **20** | **0.578** | **$1,500** | **+0.102** |
+| 25 | 0.625 | $1,875 | +0.048 |
+| **30** | **0.678** | **$2,250** | **+0.053** |
+| 40 | 0.726 | $3,000 | +0.048 |
+| **50** | **0.758** | **$3,750** | **+0.033** |
+| 75 | 0.833 | $5,625 | +0.074 |
+| 100 | **0.891** | $7,500 | +0.058 |
+
+### Diminishing returns analysis
+The biggest bang-for-buck is at k=20 (marginal recall +0.102).
+Going from k=20→30 costs $750 more but adds only +0.053 recall.
+Going from k=50→100 costs $3,750 more but adds +0.133 recall.
+
+### Clinical recommendations by budget
+| Budget tier | Panel size | Expected recall | Cost |
+|-------------|-----------|----------------|------|
+| Budget | 20 | 57.8% | $1,500 |
+| Standard | 30 | 67.8% | $2,250 |
+| Premium | 50 | 75.8% | $3,750 |
+| Comprehensive | 100 | 89.1% | $7,500 |
+
+### Adaptive k performs well
+adaptive_10pct (k = 10% of mutations, min 20, max 100):
+recall = 0.672, mean k = 35.6, cost = ~$2,700/patient.
+This adapts to each patient's mutation burden automatically.
