@@ -2917,3 +2917,34 @@ where:
   rescue: if no alt_support, use TCGA_expression × CSCAPE
   blacklist: passenger genes × 0.1
 ```
+
+## ML With Binding Features — Now Competitive (2026-03-19)
+
+### With binding+stability as ML features
+| Method | recall@20 | ML beats simple |
+|--------|-----------|----------------|
+| Simple rule (expr×visibility) | **0.705** | — |
+| ML GBT (20-seed avg) | 0.694 ± 0.019 | 40% of seeds |
+
+### Compare to WITHOUT binding features
+| Features | ML avg | Simple rule | ML wins |
+|----------|--------|-------------|---------|
+| Expression only | 0.531 | 0.578 | 16% |
+| **+ Binding + stability** | **0.694** | **0.705** | **40%** |
+
+Adding binding/stability features helps ML much more than the simple rule:
+- ML: 0.531 → 0.694 (+0.163, +30.7%)
+- Simple: 0.578 → 0.705 (+0.127, +22.0%)
+
+### The gap is closing
+With the right features, ML is within 0.011 of the simple rule.
+At N>500 positives, ML would likely surpass it (more data to learn
+non-linear interactions). But at N=213, the simple rule's correct
+functional form still gives it an edge.
+
+### Final verdict: simple rule STILL wins, but barely
+The simple rule is the right choice because:
+1. 0.705 > 0.694 (albeit close)
+2. Deterministic (no variance)
+3. Zero compute
+4. Interpretable biology
