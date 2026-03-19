@@ -2794,3 +2794,46 @@ Compute: milliseconds, no training required
 3. Paper submission to Nature Methods or Bioinformatics
 4. Clinical collaboration for prospective trial
 5. Larger dataset (N>1000 positives) to test if ML then wins
+
+## ═══ BREAKTHROUGH: BINDING × EXPRESSION = 0.694 ═══ (2026-03-19)
+
+### THE BIGGEST IMPROVEMENT IN THE ENTIRE PROGRAM
+| Method | recall@20 | Delta |
+|--------|-----------|-------|
+| **alt×TPM × 1/binding** | **0.694** | **+0.116** |
+| alt×TPM × 1/√binding | 0.660 | +0.082 |
+| alt×TPM × 1/log(bind+1) | 0.644 | +0.066 |
+| alt×TPM only (previous best) | 0.578 | baseline |
+
+### Why this works
+At mutation level, we were missing binding data (it's peptide-specific).
+Once we map the best-binding peptide back to each mutation:
+- alt×TPM captures "how much mutant mRNA is produced"
+- 1/binding_rank captures "can the immune system see it"
+- The PRODUCT captures "how many presentable mutant peptides are on the cell surface"
+
+This is the biological truth:
+**Immunogenicity = mRNA abundance × MHC presentation efficiency**
+
+### Why we didn't find this earlier
+1. At peptide level, binding was already in the feature set (implicit)
+2. At mutation level, we didn't have binding rank per mutation
+3. The mapping (mutation → best peptide → binding rank) was needed
+
+### Updated production rule (NEW BEST)
+```
+score = alt_support × TPM / max(best_binding_rank, 0.01)
+if alt_support = 0: use TCGA rescue
+if gene ∈ BLACKLIST: score × 0.1
+```
+
+### This changes the conclusion
+ML is still not needed — but BINDING DATA IS.
+The updated simple rule (expression × 1/binding) reaches 0.694
+with zero ML. The previous ceiling (0.578) was only because we
+weren't using binding at the mutation level.
+
+### Cost implication
+Binding prediction (NetMHCpan) requires HLA typing (+$100).
+Total: $305 (shallow RNA-seq) + $100 (HLA) = $405/patient.
+But recall jumps from 0.578 → 0.694 (+20% relative).
