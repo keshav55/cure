@@ -256,16 +256,30 @@ and peptide levels do not exceed this ceiling---it is set by gate failures
 (19.1\% of positives) and feature indistinguishability
 \end{itemize}
 
+\section{ML vs Simple Rule: Stability Analysis}
+
+Across 50 random seeds, GBT achieves mean recall@20 of 0.531 $\pm$ 0.016,
+while alt\_support $\times$ TPM achieves a deterministic 0.550. The simple
+rule beats ML in 84\% of seeds. The previously reported ML ``SOTA'' of
+0.578 was a top-2\% seed. At $N=213$ positives, ML overfits to the
+negative sampling and introduces more variance than signal.
+
+\textbf{Recommendation}: do not use ML for neoantigen prioritization
+at this sample size. Use alt\_support $\times$ TPM with TCGA rescue
+for mutations lacking RNA-seq variant evidence (recall@20 = 0.574).
+
 \section{Clinical Protocol}
 
 Based on these findings, we propose:
 \begin{enumerate}[nosep]
 \item Sequence tumor (WGS/WES) + RNA-seq
-\item Call neoantigens with patient-matched HLA alleles
-\item \textbf{Gate}: alt support $> 0$ AND binding rank $< 2.0$
-\item \textbf{Score}: GBT+RF ensemble on gated candidates
-\item \textbf{Select}: top 20 for vaccine synthesis
-\item Expected yield: $\sim$50\% of immunogenic peptides in 20 candidates
+\item Call variants with patient-matched HLA alleles
+\item \textbf{Rank mutations}: by alt\_support $\times$ TPM.
+For mutations without alt support, use TCGA expression $\times$ CSCAPE
+\item \textbf{Select peptides}: for each top mutation, pick the
+strongest MHC-binding peptide
+\item \textbf{Synthesize}: top 20 peptides for vaccine
+\item Expected yield: $\sim$57\% of immunogenic mutations in 20 candidates
 \end{enumerate}
 
 Cost: WGS (\$200) + RNA-seq (\$50) + HLA typing (\$100) = \$350/patient.
