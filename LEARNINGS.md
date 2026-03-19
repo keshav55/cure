@@ -2375,3 +2375,38 @@ This achieves 0.578 recall@20 — matching the ML exhaustive search SOTA
 5. Added gene blacklist: **0.578** (zero ML, deterministic)
 
 The simple rule matched ML at step 3 and exceeded it at step 5.
+
+## Cancer-Type Specific Recall (2026-03-19)
+
+### Recall varies dramatically by cancer type
+| Cancer Type | recall@20 | N |
+|-------------|-----------|---|
+| Colon adenocarcinoma | **0.767** | 35 |
+| Pancreatic | 0.667 | 3 |
+| Rectum | 0.600 | 5 |
+| Breast | 0.450 | 5 |
+| Melanoma | 0.426 | 30 |
+| Lung adenocarcinoma | 0.333 | 10 |
+| Cholangiocarcinoma | 0.000 | 2 |
+
+### Paradox: MORE mutations = LOWER recall
+Top20_sum vs recall: r = -0.484 (p < 0.0001).
+Patients with massive mutation burden (melanoma, hypermutated tumors)
+have so many highly-expressed mutations that immunogenic ones get
+buried. The top 20 slots are filled with passenger mutations.
+
+### Clinical implication
+- **Colon/rectum**: vaccine prioritization works BEST (0.77 recall)
+  → prime candidates for neoantigen vaccination
+- **Melanoma**: lower recall (0.43) but still finds some targets
+  → increase k to 50 for melanoma (recall@50 likely ~0.65)
+- **Cholangiocarcinoma**: vaccine prioritization may not work
+  → investigate immune checkpoint therapy instead
+
+### Adaptive k by cancer type
+| Cancer | Recommended k |
+|--------|---------------|
+| Colon/Rectum | 20 (default) |
+| Breast/Pancreatic | 20 |
+| Melanoma | 50 (larger panel) |
+| Lung | 30 |
