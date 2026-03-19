@@ -2000,3 +2000,33 @@ This means our "SOTA" of 0.578 may include some seed luck.
 ### Conservative estimate
 True recall@20 is likely in the 0.53-0.58 range. The exhaustive search
 found the lucky seed; the ensemble gives the stable estimate.
+
+## 100-Bootstrap Ensemble (2026-03-19)
+
+### Results
+| Method | recall@20 | Delta vs single |
+|--------|-----------|----------------|
+| 100-bootstrap ensemble | 0.542 | +0.023 (p=0.15) |
+| 15-seed GBT+RF stack | 0.545 | +0.026 (p=0.08) |
+| 10-seed GBT ensemble | 0.530 | +0.011 (p=0.31) |
+| Single GBT (optimal) | 0.519 | baseline |
+| Exhaustive search seed-42 | 0.578 | +0.060 |
+
+### The truth about the SOTA
+Our "best" of 0.578 includes seed luck. The honest estimate:
+- **Stable ensemble estimate**: 0.54 ± 0.04
+- **Lucky seed peak**: 0.578
+- **True range**: 0.50 - 0.58 depending on random seed
+
+### Why ensembling doesn't break through
+The ceiling is set by:
+1. 19% of positives fail alt_support gate (no RNA evidence of mutation)
+2. Feature indistinguishability — some positives look identical to negatives
+3. N=213 positives is insufficient for the model to learn subtle patterns
+4. Patient-specific immunity (HLA-dependent) creates irreducible noise
+
+### What would truly improve
+1. **More data**: 1000+ positive mutations from new studies
+2. **TCR data**: whether a T-cell receptor exists that binds the peptide-MHC
+3. **Deeper RNA-seq**: rescue the 26 positives with alt_support=0
+4. **Structural features**: 3D peptide-MHC-TCR complex modeling
