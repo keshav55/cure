@@ -2111,3 +2111,32 @@ comes from learning that CSCAPE and CCF add small independent signals.
 The simplest competitive pipeline is: **sort mutations by alt_support × TPM.**
 No ML required. No binding prediction needed. Just RNA-seq.
 Cost: $50 (RNA-seq only). Time: 30 seconds on any computer.
+
+## Residual Learning: ML Boosts the Simple Rule (2026-03-19)
+
+### Best combination: 0.7 × alt×TPM + 0.3 × ML = 0.569
+| Strategy | recall@20 |
+|----------|-----------|
+| 0.7×simple + 0.3×ML | **0.569** |
+| 0.5×simple + 0.5×ML | 0.564 |
+| 0.3×simple + 0.7×ML | 0.561 |
+| rank_simple + rank_ML | 0.556 |
+| simple × ML | 0.554 |
+| alt×TPM only | 0.550 |
+| ML only | 0.529 |
+
+### Key findings
+1. The simple rule should have 70% weight — it's the primary signal
+2. ML adds +0.019 as a minority vote (not significant, p=0.14)
+3. ML alone (0.529) is WORSE than the simple rule (0.550)
+4. The combined 0.569 is our best stable estimate (not seed-dependent)
+
+### The hierarchy of approaches (definitive)
+| Method | recall@20 | Notes |
+|--------|-----------|-------|
+| Exhaustive search SOTA | 0.578 | Lucky seed |
+| 0.7×simple + 0.3×ML | **0.569** | Stable, best combo |
+| alt×TPM (zero ML) | 0.550 | Simplest possible |
+| Stable GBT ensemble | 0.540 | 15-seed average |
+| ML only (single) | 0.519 | Baseline ML |
+| Binding only (peptide) | 0.276 | Standard of care |
