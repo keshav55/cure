@@ -2275,3 +2275,34 @@ with positive peptides).
 ML GBT: 0.531 ± 0.016 (mean ± std)
 Simple rule: 0.550 (deterministic)
 Simple rule WINS in 84% of seeds.
+
+## Precision Analysis & Patient-Level Prediction (2026-03-19)
+
+### Precision@20 = 3.2%
+Of 20 vaccine candidates, ~0.6 are immunogenic on average.
+This seems low but recall@20 = 55% — we find most of the needles.
+The 96.8% "false positives" are still strong binders that won't harm.
+
+### Median patient: 2 immunogenic mutations
+| n_pos | Patients |
+|-------|----------|
+| 1 | 47 (48%) |
+| 2 | 25 (26%) |
+| 3-4 | 19 (20%) |
+| 5-9 | 3 (3%) |
+| 10+ | 3 (3%) |
+
+### Predicting n_pos per patient
+| Predictor | Spearman r | p-value |
+|-----------|-----------|---------|
+| sum_axt (total mutant mRNA) | **0.489** | <0.0001 |
+| n_mutations | 0.449 | <0.0001 |
+| n_genes | 0.451 | <0.0001 |
+| n_high_axt | 0.445 | <0.0001 |
+
+Total mutant mRNA load (sum of alt×TPM across all mutations) is the best
+predictor of how many immunogenic mutations a patient will have.
+
+### Adaptive k doesn't help
+Fixed k=20 beats adaptive k (0.550 vs 0.469). With median n_pos=2,
+you need to cast a wide net — restricting k loses true positives.
