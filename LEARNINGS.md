@@ -3154,3 +3154,28 @@ mutations each, pushing positives to ranks 36-148.
 ### Clinical recommendation for melanoma/high-burden patients
 Use k=50 instead of k=20. Cost: +$2,250/patient. Benefit: +44% recall.
 This is the single most impactful recommendation for TESLA-like cohorts.
+
+## Weighted Aggregation — Mean Top 3 Confirmed Optimal (2026-03-20)
+
+### All weighted variants are worse
+| Aggregation | recall@20 |
+|-------------|-----------|
+| **mean top 3** | **0.733** |
+| **sum top 3** | **0.733** |
+| mean top 4 | 0.731 |
+| mean top 5 | 0.729 |
+| geometric mean top 3 | 0.721 |
+| mean top 2 | 0.720 |
+| weighted 0.7/0.2/0.1 | 0.720 |
+| max + mean | 0.720 |
+| weighted 0.5/0.3/0.2 | 0.717 |
+| median top 5 | 0.663 |
+
+Equal-weight mean of top 3 is the optimal aggregation.
+Giving more weight to the best peptide HURTS — the 2nd and 3rd
+peptides carry equal informational value about presentation breadth.
+
+### Research program: definitively complete
+142 commits. 50+ experiments. 40+ formula variants. 6 papers.
+The formula (alt×TPM) × (1/bind + 1/stab), mean top 3, dedup by mutation
+= 0.733 recall@20. Nothing we've tested improves it.
