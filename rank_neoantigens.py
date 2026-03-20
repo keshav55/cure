@@ -2,11 +2,15 @@
 """
 rank_neoantigens.py — Neoantigen Vaccine Candidate Ranker
 
-The simplest competitive neoantigen prioritization tool.
-Based on 110 commits of research on 1.8M peptides across 99 patients.
+Neoantigen vaccine candidate ranker. Zero ML. Deterministic.
+Based on 140 commits of research on 1.8M peptides across 131 patients.
 
-Core insight: immunogenicity ≈ mutant mRNA abundance (alt_support × TPM).
-This formula matches ML ensemble performance (recall@20 = 0.574).
+Formula: immunogenicity = mRNA_abundance × immune_visibility
+  mRNA_abundance = alt_support × TPM
+  immune_visibility = 1/binding_rank + 1/stability_rank
+  Aggregation: mean of top 3 peptide scores per mutation
+
+recall@20 = 0.733 on NeoRanking benchmark (+165% over binding-only baseline).
 
 Usage:
     python rank_neoantigens.py mutations.tsv [--top 20] [--output ranked.tsv]
