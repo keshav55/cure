@@ -3028,3 +3028,33 @@ At k=100: 94.5% — essentially complete coverage.
 5. Select top k mutations → k unique vaccine peptides
 ```
 Zero ML. Deterministic. Milliseconds. 0.727 recall@20.
+
+## Dedup Optimization: Sum Top 3 = 0.733 (2026-03-20)
+
+### Selection strategy comparison
+| Strategy | recall@20 |
+|----------|-----------|
+| **Sum top 3 peptide scores** | **0.733** |
+| **Mean top 3 peptide scores** | **0.733** |
+| Select best binding | 0.731 |
+| Select top3→best binding | 0.729 |
+| Max (previous) | 0.727 |
+| Sum top 5 | 0.729 |
+| Sum all | 0.718 |
+| Max × n_strong | 0.702 |
+
+### Why sum/mean of top 3 wins
+A mutation with 3 good peptides is more likely immunogenic than one
+with 1 great peptide. The sum captures "breadth of presentation" —
+more strong-binding peptides = more chances for T-cell recognition.
+
+### Updated production pipeline
+```
+1. Score each peptide: (alt×TPM) × (1/binding + 1/stability)
+2. Group peptides by mutation
+3. For each mutation: score = mean(top 3 peptide scores)
+4. Rank mutations by aggregate score
+5. For each selected mutation: use best-binding peptide for synthesis
+6. Select top k → k unique vaccine peptides
+```
+recall@20 = 0.733. Zero ML. Deterministic.
