@@ -2980,3 +2980,51 @@ score = (alt×TPM) × (1/binding + 1/stability)
 Nothing improves it: not PRIME, not TAP, not CSCAPE, not n_alleles,
 not n_peptides, not gene rate, not log transforms, not quadratic terms.
 The formula IS the biology. There is nothing else to add.
+
+## ═══ ALL-TIME SOTA: 0.727 — DEDUPED PEPTIDE SCORING ═══ (2026-03-20)
+
+### The trick: one peptide per mutation
+Instead of ranking all 1.8M peptides (where top 20 slots get wasted on
+multiple peptides from the same high-scoring mutation), DEDUPLICATE:
+1. Group peptides by mutation
+2. Pick the best-scoring peptide per mutation
+3. Rank mutations by their best peptide's score
+4. Select top 20 mutations → 20 unique peptides
+
+### Results
+| Method | recall@20 |
+|--------|-----------|
+| **Deduped peptide (new)** | **0.727** |
+| Mutation-level | 0.705 |
+| Raw peptide-level | 0.466 |
+| Previous peptide SOTA (gated GBT+RF) | 0.505 |
+| Binding only | 0.276 |
+
+### Why dedup > mutation-level
+Dedup at peptide level (0.727) beats mutation level (0.705) by +0.022
+because the peptide-level has BINDING AND STABILITY PER PEPTIDE,
+while mutation level has only the BEST binding per mutation.
+At peptide level, the formula picks the optimal peptide per mutation
+(best combination of binding + stability for that specific allele).
+
+### Updated cost-recall curve (BEST EVER)
+| k | recall | Cost |
+|---|--------|------|
+| 10 | 0.566 | $750 |
+| **20** | **0.727** | **$1,500** |
+| 30 | 0.784 | $2,250 |
+| **50** | **0.889** | **$3,750** |
+| **100** | **0.945** | **$7,500** |
+
+At k=50: nearly 89% of immunogenic mutations found.
+At k=100: 94.5% — essentially complete coverage.
+
+### The complete production pipeline
+```
+1. Score each peptide: (alt×TPM) × (1/binding + 1/stability)
+2. Group peptides by mutation
+3. Pick highest-scoring peptide per mutation
+4. Rank mutations by their best peptide score
+5. Select top k mutations → k unique vaccine peptides
+```
+Zero ML. Deterministic. Milliseconds. 0.727 recall@20.
