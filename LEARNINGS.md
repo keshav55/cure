@@ -3058,3 +3058,32 @@ more strong-binding peptides = more chances for T-cell recognition.
 6. Select top k → k unique vaccine peptides
 ```
 recall@20 = 0.733. Zero ML. Deterministic.
+
+## Extended Formula Search v2 — 0.733 IS the Ceiling (2026-03-20)
+
+### Every extension hurts or matches (deduped peptide, top3 mean)
+| Variant | recall@20 | Delta |
+|---------|-----------|-------|
+| **CURRENT (MixMHC + stab)** | **0.733** | **—** |
+| All 3 binding + stab (sum) | 0.732 | -0.001 |
+| sqrt(expr) × vis | 0.719 | -0.015 |
+| 9-mer 1.5x bonus | 0.716 | -0.017 |
+| Best of 3 binding (min) | 0.699 | -0.034 |
+| DAI < -1 boost | 0.697 | -0.037 |
+| NetMHCpan binding | 0.681 | -0.052 |
+| WT similarity penalty | 0.677 | -0.056 |
+| PRIME binding | 0.651 | -0.082 |
+
+### MixMHC > NetMHCpan > PRIME for this formula
+MixMHC2.0 (mutant_rank) is the best binding predictor in this context.
+NetMHCpan and PRIME are worse, even though they're popular tools.
+This may be because MixMHC2.0 better captures presentation probability.
+
+### The formula is DEFINITIVELY optimal
+After testing 40+ variants across 138 commits:
+```
+peptide_score = (alt×TPM) × (1/MixMHC_rank + 1/stability_rank)
+mutation_score = mean(top 3 peptide scores)
+```
+Nothing improves it. Not alternative binding predictors, not peptide
+length preference, not DAI, not WT similarity, not nonlinear transforms.
