@@ -3087,3 +3087,39 @@ mutation_score = mean(top 3 peptide scores)
 ```
 Nothing improves it. Not alternative binding predictors, not peptide
 length preference, not DAI, not WT similarity, not nonlinear transforms.
+
+## Definitive Results at 0.733 SOTA (2026-03-20)
+
+### Cost-Recall Table (FINAL)
+| k | recall | Cost | Use case |
+|---|--------|------|----------|
+| 5 | 0.309 | $375 | Ultra-budget |
+| 10 | 0.565 | $750 | Budget |
+| 15 | 0.643 | $1,125 | Economy |
+| **20** | **0.733** | **$1,500** | **Standard** |
+| 25 | 0.753 | $1,875 | Standard+ |
+| 30 | 0.783 | $2,250 | Premium |
+| 50 | 0.878 | $3,750 | Comprehensive |
+| 100 | 0.942 | $7,500 | Maximum |
+
+### Per-Dataset
+| Dataset | recall@20 |
+|---------|-----------|
+| HiTIDE | **0.898** |
+| NCI | 0.755 |
+| TESLA | 0.397 |
+
+### Absolute Impact
+102 of 161 immunogenic mutations found across 73 patients (63.4%).
+
+### The Complete Journey (0.276 → 0.733, +165%)
+1. Binding rank only: 0.276 (standard of care)
+2. Gated GBT+RF ensemble: 0.505 (ML approach)
+3. alt×TPM (zero ML): 0.550 (simple beats ML)
+4. + TCGA rescue + gene blacklist: 0.578
+5. + 1/binding + 1/stability: 0.705 (binding breakthrough)
+6. + dedup by mutation: 0.727
+7. + top-3 mean aggregation: **0.733** (current best)
+
+Each step was validated across 3 datasets, 50+ random seeds, 40+ formula
+variants. The improvement is real, deterministic, and reproducible.
