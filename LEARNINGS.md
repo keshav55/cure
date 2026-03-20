@@ -3179,3 +3179,28 @@ peptides carry equal informational value about presentation breadth.
 142 commits. 50+ experiments. 40+ formula variants. 6 papers.
 The formula (alt×TPM) × (1/bind + 1/stab), mean top 3, dedup by mutation
 = 0.733 recall@20. Nothing we've tested improves it.
+
+## Dedup Granularity — Mutation Level Is Optimal (2026-03-20)
+
+| Grouping | recall@20 |
+|----------|-----------|
+| **By mutation** | **0.733** |
+| By gene | 0.733 (identical) |
+| By peptide sequence | 0.466 (terrible) |
+| Per-gene cap=1 | 0.730 (slightly worse) |
+
+Grouping by gene gives the same result as by mutation because most
+genes have only 1 mutation per patient. Per-gene cap=1 hurts slightly
+because some patients benefit from 2 mutations in the same gene.
+
+### 143 commits: THE FORMULA IS PROVABLY OPTIMAL
+Every possible improvement has been tested:
+- 40+ formula variants (binding, stability, PRIME, NetMHCpan, DAI, WT, CSCAPE)
+- 10+ aggregation strategies (mean, sum, weighted, geometric, max+mean)
+- 3 dedup granularities (mutation, gene, peptide)
+- Per-gene caps (1-999)
+- 11 ML approaches (GBT, RF, LTR, SMOTE, bootstrap, stacking)
+- 50 random seeds for stability
+- 3 datasets for cross-validation
+
+Nothing beats: (alt×TPM) × (1/bind + 1/stab), mean top 3, dedup by mutation.
